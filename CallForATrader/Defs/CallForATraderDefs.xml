@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <!-- Custom Letter Def for Trader Offer choices -->
+  <LetterDef>
+    <defName>Letter_OrbitalTraderOffer</defName>
+    <label>orbital trader offer</label>
+    <letterClass>CallForATrader.ChoiceLetter_CallForATrader</letterClass>
+  </LetterDef>
+
+  <!-- Custom Letter Def for Trader Tracking -->
+  <LetterDef>
+    <defName>Letter_TraderTracking</defName>
+    <label>trader tracking</label>
+    <letterClass>CallForATrader.ChoiceLetter_TraderTracking</letterClass>
+  </LetterDef>
+
+  <!-- Incident Def for random trader offer event -->
+  <IncidentDef>
+    <defName>Incident_OrbitalTraderOffer</defName>
+    <label>orbital trader offer</label>
+    <category>Misc</category>
+    <targetTags>
+      <li>Map_PlayerHome</li>
+    </targetTags>
+    <workerClass>CallForATrader.IncidentWorker_OrbitalTraderOffer</workerClass>
+    <baseChance>1.5</baseChance>
+    <minRefireDays>3</minRefireDays>
+    <pointsScaleable>false</pointsScaleable>
+  </IncidentDef>
+</Defs>
