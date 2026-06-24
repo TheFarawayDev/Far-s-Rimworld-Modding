@@ -57,7 +57,7 @@ $refArgs = $refs | ForEach-Object { "/r:`"$_`"" }
 # Get all C# files under Source directory recursively
 $sources = Get-ChildItem -Path "$modDir\Source" -Filter "*.cs" -Recurse | ForEach-Object { "`"$($_.FullName)`"" }
 
-$cmdArgs = @("/target:library", "/out:`"$outputDll`"") + $refArgs + $sources
+$cmdArgs = @("/target:library", "/out:`"$outputDll`"", "/nowarn:1684") + $refArgs + $sources
 
 & $cscPath $cmdArgs
 if ($LASTEXITCODE -ne 0) {

@@ -16,12 +16,12 @@ namespace AndroidTiersContinuedPatch
     {
         public static bool Prepare()
         {
-            return AccessTools.TypeByName("CompAndroidState") != null;
+            return AccessTools.TypeByName("MOARANDROIDS.CompAndroidState") != null;
         }
 
         public static System.Reflection.MethodBase TargetMethod()
         {
-            return AccessTools.Method(AccessTools.TypeByName("CompAndroidState"), "CompGetGizmosExtra");
+            return AccessTools.Method(AccessTools.TypeByName("MOARANDROIDS.CompAndroidState"), "CompGetGizmosExtra");
         }
 
         [HarmonyPostfix]
@@ -45,12 +45,12 @@ namespace AndroidTiersContinuedPatch
     {
         public static bool Prepare()
         {
-            return AccessTools.TypeByName("Designator_SurrogateToHack") != null;
+            return AccessTools.TypeByName("MOARANDROIDS.Designator_SurrogateToHack") != null;
         }
 
         public static System.Reflection.MethodBase TargetMethod()
         {
-            return AccessTools.Method(AccessTools.TypeByName("Designator_SurrogateToHack"), "CanDesignateThing");
+            return AccessTools.Method(AccessTools.TypeByName("MOARANDROIDS.Designator_SurrogateToHack"), "CanDesignateThing");
         }
 
         [HarmonyPostfix]
@@ -78,12 +78,12 @@ namespace AndroidTiersContinuedPatch
     {
         public static bool Prepare()
         {
-            return AccessTools.TypeByName("CompSkyMind") != null;
+            return AccessTools.TypeByName("MOARANDROIDS.CompSkyMind") != null;
         }
 
         public static System.Reflection.MethodBase TargetMethod()
         {
-            return AccessTools.Method(AccessTools.TypeByName("CompSkyMind"), "tempHackingEnding");
+            return AccessTools.Method(AccessTools.TypeByName("MOARANDROIDS.CompSkyMind"), "tempHackingEnding");
         }
 
         [HarmonyPrefix]
@@ -98,33 +98,59 @@ namespace AndroidTiersContinuedPatch
                 Pawn cp = (Pawn)__instance.parent;
                 var parentCAS = traverse.Field("parentCAS").GetValue<ThingComp>();
 
-                if (parentCAS != null)
+                // 1. Safe stopControlledSurrogate invocation
+                try
                 {
-                    var surrogateController = Traverse.Create(parentCAS).Field("surrogateController").GetValue<Pawn>();
-                    if (surrogateController != null)
+                    if (parentCAS != null)
                     {
-                        var utilsType = AccessTools.TypeByName("Utils");
-                        if (utilsType != null)
+                        var surrogateController = Traverse.Create(parentCAS).Field("surrogateController").GetValue<Pawn>();
+                        if (surrogateController != null)
                         {
-                            var method = AccessTools.Method(utilsType, "getCachedCSO");
-                            if (method != null)
+                            var utilsType = AccessTools.TypeByName("MOARANDROIDS.Utils");
+                            if (utilsType != null)
                             {
-                                var cso = method.Invoke(null, new object[] { surrogateController });
-                                if (cso != null)
+                                var method = AccessTools.Method(utilsType, "getCachedCSO");
+                                if (method != null)
                                 {
-                                    Traverse.Create(cso).Method("stopControlledSurrogate", new object[] { cp, true }).GetValue();
+                                    var cso = method.Invoke(null, new object[] { surrogateController });
+                                    if (cso != null)
+                                    {
+                                        var stopMethod = AccessTools.Method(cso.GetType(), "stopControlledSurrogate");
+                                        if (stopMethod != null)
+                                        {
+                                            var pars = stopMethod.GetParameters();
+                                            object[] args = new object[pars.Length];
+                                            args[0] = cp;
+                                            if (pars.Length > 1) args[1] = true;  // externalController
+                                            if (pars.Length > 2) args[2] = false; // preventNoHost
+                                            if (pars.Length > 3) args[3] = false; // noPrisonedSurrogateConversion
+                                            if (pars.Length > 4) args[4] = true;  // downedViaDisconnect
+                                            for (int i = 5; i < pars.Length; i++)
+                                            {
+                                                if (pars[i].ParameterType == typeof(bool)) args[i] = false;
+                                                else args[i] = null;
+                                            }
+                                            stopMethod.Invoke(cso, args);
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
+                catch (System.Exception ex)
+                {
+                    Log.Error("[AndroidTiersContinuedPatch] Safe stopControlledSurrogate failed: " + ex.ToString());
+                }
 
+                // 2. Reset faction back to original
                 Faction hackOrigFaction = traverse.Field("hackOrigFaction").GetValue<Faction>();
                 if (hackOrigFaction != null && cp.Faction != hackOrigFaction)
                 {
                     cp.SetFaction(hackOrigFaction, null);
                 }
 
+                // 3. Reset prison/slave guest status if needed
                 bool hackWasPrisoned = traverse.Field("hackWasPrisoned").GetValue<bool>();
                 if (hackWasPrisoned && cp.guest != null)
                 {
@@ -140,6 +166,7 @@ namespace AndroidTiersContinuedPatch
                     }
                 }
 
+                // 4. Reset jobs and mindState
                 if (cp.jobs != null)
                 {
                     cp.jobs.StopAll();
@@ -151,7 +178,46 @@ namespace AndroidTiersContinuedPatch
 
                 PawnComponentsUtility.AddAndRemoveDynamicComponents(cp, false);
 
-                // Safely update state using Property to trigger popVirusedThing
+                // 5. Safe SkyMind Disconnection
+                try
+                {
+                    var utilsTypeForGC = AccessTools.TypeByName("MOARANDROIDS.Utils");
+                    if (utilsTypeForGC != null)
+                    {
+                        var fieldInfo = AccessTools.Field(utilsTypeForGC, "GCATPP");
+                        var gcatpp = fieldInfo != null ? fieldInfo.GetValue(null) : null;
+                        if (gcatpp != null)
+                        {
+                            var discMethod = AccessTools.Method(gcatpp.GetType(), "disconnectUser");
+                            if (discMethod != null)
+                            {
+                                var pars = discMethod.GetParameters();
+                                object[] args = new object[pars.Length];
+                                args[0] = cp;
+                                if (pars.Length > 1) args[1] = false; // notify
+                                if (pars.Length > 2) args[2] = true;  // force
+                                for (int i = 3; i < pars.Length; i++)
+                                {
+                                    if (pars[i].ParameterType == typeof(bool)) args[i] = false;
+                                    else args[i] = null;
+                                }
+                                discMethod.Invoke(gcatpp, args);
+                            }
+                        }
+                    }
+                    traverse.Field("autoconn").SetValue(false);
+                    traverse.Field("connected").SetValue(false);
+                    if (Find.ColonistBar != null)
+                    {
+                        Find.ColonistBar.MarkColonistsDirty();
+                    }
+                }
+                catch (System.Exception ex)
+                {
+                    Log.Error("[AndroidTiersContinuedPatch] Safe disconnectUser failed: " + ex.ToString());
+                }
+
+                // 6. Reset hacked state and clear fields
                 var propHacked = AccessTools.Property(__instance.GetType(), "Hacked");
                 if (propHacked != null)
                 {
@@ -160,7 +226,7 @@ namespace AndroidTiersContinuedPatch
                 else
                 {
                     traverse.Field("hacked").SetValue(-1);
-                    var utilsType = AccessTools.TypeByName("Utils");
+                    var utilsType = AccessTools.TypeByName("MOARANDROIDS.Utils");
                     if (utilsType != null)
                     {
                         var fieldInfo = AccessTools.Field(utilsType, "GCATPP");
@@ -179,7 +245,7 @@ namespace AndroidTiersContinuedPatch
                 {
                     cp.Map.attackTargetsCache.UpdateTarget(cp);
 
-                    var allPawns = cp.Map.mapPawns.AllPawnsSpawned.ToList(); // ToList() prevents InvalidOperationException
+                    var allPawns = cp.Map.mapPawns.AllPawnsSpawned.ToList();
                     foreach (var p in allPawns)
                     {
                         if (p.CurJob != null && p.CurJob.targetA != null && p.CurJob.targetA.Thing == cp)
@@ -192,21 +258,6 @@ namespace AndroidTiersContinuedPatch
             catch (System.Exception ex)
             {
                 Log.Error("[AndroidTiersContinuedPatch] Safe tempHackingEnding failed: " + ex.ToString());
-                // Force cleanup even if it fails
-                var traverse = Traverse.Create(__instance);
-                traverse.Field("hacked").SetValue(-1);
-                traverse.Field("hackEndGT").SetValue(-1);
-                
-                var utilsType = AccessTools.TypeByName("Utils");
-                if (utilsType != null)
-                {
-                    var fieldInfo = AccessTools.Field(utilsType, "GCATPP");
-                    var gcatpp = fieldInfo != null ? fieldInfo.GetValue(null) : null;
-                    if (gcatpp != null)
-                    {
-                        Traverse.Create(gcatpp).Method("popVirusedThing", new object[] { __instance.parent }).GetValue();
-                    }
-                }
             }
 
             return false; // Skip original method
@@ -218,12 +269,12 @@ namespace AndroidTiersContinuedPatch
     {
         public static bool Prepare()
         {
-            return AccessTools.TypeByName("Designator_SurrogateToHack") != null;
+            return AccessTools.TypeByName("MOARANDROIDS.Designator_SurrogateToHack") != null;
         }
 
         public static System.Reflection.MethodBase TargetMethod()
         {
-            return AccessTools.Method(AccessTools.TypeByName("Designator_SurrogateToHack"), "FinalizeDesignationSucceeded");
+            return AccessTools.Method(AccessTools.TypeByName("MOARANDROIDS.Designator_SurrogateToHack"), "FinalizeDesignationSucceeded");
         }
 
         [HarmonyPrefix]
@@ -237,7 +288,7 @@ namespace AndroidTiersContinuedPatch
 
                 if (target == null) return false;
 
-                var utilsType = AccessTools.TypeByName("Utils");
+                var utilsType = AccessTools.TypeByName("MOARANDROIDS.Utils");
                 ThingComp csm = (ThingComp)AccessTools.Method(utilsType, "getCachedCSM").Invoke(null, new object[] { target });
                 ThingComp cas = (ThingComp)AccessTools.Method(utilsType, "getCachedCAS").Invoke(null, new object[] { target });
                 
@@ -261,7 +312,7 @@ namespace AndroidTiersContinuedPatch
                 int nbp = Traverse.Create(gcatpp).Method("getNbHackingPoints").GetValue<int>();
                 int nbpToConsume = 0;
 
-                var settingsType = AccessTools.TypeByName("Settings");
+                var settingsType = AccessTools.TypeByName("MOARANDROIDS.Settings");
                 switch (hackType)
                 {
                     case 1:
@@ -324,7 +375,7 @@ namespace AndroidTiersContinuedPatch
                         IntVec3 fallbackLocation;
                         RCellFinder.TryFindRandomSpotJustOutsideColony(target.PositionHeld, target.Map, out fallbackLocation);
 
-                        var lordJobType = AccessTools.TypeByName("LordJob_AssistColony");
+                        var lordJobType = AccessTools.TypeByName("RimWorld.LordJob_AssistColony");
                         if (lordJobType != null)
                         {
                             var lordJob = Activator.CreateInstance(lordJobType, new object[] { Faction.OfAncients, fallbackLocation });
@@ -426,7 +477,7 @@ namespace AndroidTiersContinuedPatch
 
                 Traverse.Create(gcatpp).Method("decHackingPoints", new object[] { nbpToConsume }).GetValue();
 
-                var soundType = AccessTools.TypeByName("SoundDefOfAT");
+                var soundType = AccessTools.TypeByName("MOARANDROIDS.SoundDefOfAT");
                 if (soundType != null)
                 {
                     SoundDef soundHacked = (SoundDef)AccessTools.Field(soundType, "ATPP_SoundSurrogateHacked").GetValue(null);
