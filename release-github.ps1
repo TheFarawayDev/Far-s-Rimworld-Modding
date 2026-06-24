@@ -78,7 +78,7 @@ function Update-AboutXmlVersion {
             }
             $versionNode.InnerText = $version
             $xml.Save($fullPath)
-            Write-Host "Successfully updated modVersion in About.xml." -ForegroundColor Green
+            Write-Host "Successfully updated modVersion in About.xml to $version." -ForegroundColor Green
         }
         else {
             Write-Warning "Could not find <ModMetaData> node in About.xml."
@@ -89,68 +89,60 @@ function Update-AboutXmlVersion {
     }
 }
 
-# Function to calculate next version based on Git tags and commits
-function Get-NextVersion {
-    param(
-        [string]$modName,
-        [string]$lastTag,
-        [string]$defaultVersion
-    )
-
-    if ([string]::IsNullOrEmpty($lastTag)) {
-        # Try reading existing version from About.xml
-        $aboutPath = Join-Path $modName "About\About.xml"
-        if (Test-Path $aboutPath) {
-            $xml = New-Object System.Xml.XmlDocument
-            $xml.Load([System.IO.Path]::GetFullPath($aboutPath))
-            if ($null -ne $xml.ModMetaData -and $null -ne $xml.ModMetaData.modVersion) {
-                $currentVer = $xml.ModMetaData.modVersion.Trim()
-                if ($currentVer -match '^\d+\.\d+\.\d+$') {
-                    return $currentVer
-                }
-            }
-        }
-        return $defaultVersion
-    }
-
-    # Extract version suffix from tag, e.g. "FarUtils-v1.0.2" -> "1.0.2"
-    $versionStr = $lastTag -replace "^${modName}-v", ""
+# Function to calculate next global version
+function Get-NextGlobalVersion {
+    param([string]$lastTag, [string]$defaultVersion)
+    if ([string]::IsNullOrEmpty($lastTag)) { return $defaultVersion }
+    $versionStr = $lastTag -replace "^v", ""
     if ($versionStr -match '^\d+\.\d+\.\d+$') {
         $parts = $versionStr -split '\.'
-        $major = [int]$parts[0]
-        $minor = [int]$parts[1]
-        $patch = [int]$parts[2]
-
-        # Analyze commit log since last tag in mod's directory
-        $commits = git log "$lastTag..HEAD" --oneline -- $modName
+        $major = [int]$parts[0]; $minor = [int]$parts[1]; $patch = [int]$parts[2]
+        $commits = git log "$lastTag..HEAD" --oneline
         $bump = "patch"
         foreach ($commit in $commits) {
-            if ($commit -match '\[major\]|breaking|!') {
-                $bump = "major"
-                break
-            }
-            elseif ($commit -match '\[minor\]|feat') {
-                $bump = "minor"
-            }
+            if ($commit -match '\[major\]|breaking|!') { $bump = "major"; break }
+            elseif ($commit -match '\[minor\]|feat') { $bump = "minor" }
         }
-
-        if ($bump -eq "major") {
-            $major++
-            $minor = 0
-            $patch = 0
-        }
-        elseif ($bump -eq "minor") {
-            $minor++
-            $patch = 0
-        }
-        else {
-            $patch++
-        }
-
+        if ($bump -eq "major") { $major++; $minor = 0; $patch = 0 }
+        elseif ($bump -eq "minor") { $minor++; $patch = 0 }
+        else { $patch++ }
         return "$major.$minor.$patch"
     }
-
     return $defaultVersion
+}
+
+# Function to calculate next mod version based on About.xml and changes
+function Get-NextModVersion {
+    param([string]$modName, [string]$lastGlobalTag)
+    $aboutPath = Join-Path $modName "About\About.xml"
+    $currentVer = "1.0.0"
+    if (Test-Path $aboutPath) {
+        $xml = New-Object System.Xml.XmlDocument
+        $xml.Load([System.IO.Path]::GetFullPath($aboutPath))
+        if ($null -ne $xml.ModMetaData -and $null -ne $xml.ModMetaData.modVersion) {
+            $ver = $xml.ModMetaData.modVersion.Trim()
+            if ($ver -match '^\d+\.\d+\.\d+$') { $currentVer = $ver }
+        }
+    }
+    if ([string]::IsNullOrEmpty($lastGlobalTag)) { return $currentVer }
+    
+    # Check if mod directory changed
+    $diffCount = (git diff --name-only $lastGlobalTag HEAD -- $modName | Measure-Object).Count
+    if ($diffCount -gt 0) {
+        $parts = $currentVer -split '\.'
+        $major = [int]$parts[0]; $minor = [int]$parts[1]; $patch = [int]$parts[2]
+        $commits = git log "$lastGlobalTag..HEAD" --oneline -- $modName
+        $bump = "patch"
+        foreach ($commit in $commits) {
+            if ($commit -match '\[major\]|breaking|!') { $bump = "major"; break }
+            elseif ($commit -match '\[minor\]|feat') { $bump = "minor" }
+        }
+        if ($bump -eq "major") { $major++; $minor = 0; $patch = 0 }
+        elseif ($bump -eq "minor") { $minor++; $patch = 0 }
+        else { $patch++ }
+        return "$major.$minor.$patch"
+    }
+    return $currentVer
 }
 
 # We always build first, then release
@@ -203,8 +195,6 @@ foreach ($mod in $mods) {
     }
 
     $csprojContent += "`n</Project>"
-
-    # Write temporary .csproj
     Set-Content -Path $csprojPath -Value $csprojContent
 
     try {
@@ -235,14 +225,9 @@ foreach ($mod in $mods) {
         Write-Host "Successfully compiled $modName DLL(s)!" -ForegroundColor Green
     }
     finally {
-        # Clean up temporary build artifacts
-        if (Test-Path $csprojPath) {
-            Remove-Item $csprojPath -Force
-        }
+        if (Test-Path $csprojPath) { Remove-Item $csprojPath -Force }
         $objDir = Join-Path $modDir "obj"
-        if (Test-Path $objDir) {
-            Remove-Item $objDir -Recurse -Force
-        }
+        if (Test-Path $objDir) { Remove-Item $objDir -Recurse -Force }
     }
 }
 
@@ -256,41 +241,45 @@ if ($isRelease) {
         Remove-Item $stagingParent -Recurse -Force
     }
 
-    foreach ($mod in $mods) {
-        $modName = $mod.Name
-        $modDir = Join-Path $rootPath $modName
-        
-        Write-Host "----------------------------------------" -ForegroundColor Gray
-        Write-Host "Checking release status for: $modName" -ForegroundColor Yellow
+    # Find the latest global Git tag (e.g. v*)
+    $tags = git tag -l "v*" --sort=-v:refname | Where-Object { $_ -match "^v\d+\.\d+\.\d+$" }
+    $latestGlobalTag = $null
+    if ($null -ne $tags -and $tags.Count -gt 0) {
+        $latestGlobalTag = $tags[0]
+    }
 
-        # Find the latest Git tag for this mod
-        $tags = git tag -l "${modName}-v*" --sort=-v:refname | Where-Object { $_ -ne "" }
-        $latestTag = $null
-        $needsRelease = $false
-
-        if ($null -ne $tags -and $tags.Count -gt 0) {
-            $latestTag = $tags[0]
-            # Check if there are differences in this mod directory since last tag
-            $diffCount = (git diff --name-only $latestTag HEAD -- $modName | Measure-Object).Count
+    # Check if ANYTHING changed in any mod
+    $anyChanges = $false
+    if ($null -ne $latestGlobalTag) {
+        foreach ($mod in $mods) {
+            $diffCount = (git diff --name-only $latestGlobalTag HEAD -- $($mod.Name) | Measure-Object).Count
             if ($diffCount -gt 0) {
-                Write-Host "Detected $diffCount changed file(s) since last tag ($latestTag)." -ForegroundColor Green
-                $needsRelease = $true
-            }
-            else {
-                Write-Host "No changes detected since $latestTag. Skipping release." -ForegroundColor Gray
+                $anyChanges = $true
+                break
             }
         }
-        else {
-            Write-Host "No prior tag found for $modName. Initial release will be created." -ForegroundColor Green
-            $needsRelease = $true
-        }
+    } else {
+        $anyChanges = $true
+    }
 
-        if ($needsRelease) {
-            # Determine next version
-            $version = Get-NextVersion -modName $modName -lastTag $latestTag -defaultVersion "1.0.0"
-            $tag = "${modName}-v$version"
-            Write-Host "Target Release Version: $version (Tag: $tag)" -ForegroundColor Cyan
-
+    if (-not $anyChanges) {
+        Write-Host "No changes detected in any mod since $latestGlobalTag. Skipping release." -ForegroundColor Yellow
+    } else {
+        $nextGlobalVersion = Get-NextGlobalVersion -lastTag $latestGlobalTag -defaultVersion "1.0.0"
+        $globalTag = "v$nextGlobalVersion"
+        Write-Host "Target Global Release Version: $nextGlobalVersion (Tag: $globalTag)" -ForegroundColor Cyan
+        
+        $zipPaths = @()
+        $notesContent = @("### Consolidated Release $globalTag", "")
+        
+        foreach ($mod in $mods) {
+            $modName = $mod.Name
+            $modDir = Join-Path $rootPath $modName
+            Write-Host "----------------------------------------" -ForegroundColor Gray
+            Write-Host "Packaging mod: $modName" -ForegroundColor Yellow
+            
+            $modVersion = Get-NextModVersion -modName $modName -lastGlobalTag $latestGlobalTag
+            
             # Setup staging
             $stagingDir = Join-Path $stagingParent $modName
             New-Item -ItemType Directory -Path $stagingDir -Force | Out-Null
@@ -318,64 +307,80 @@ if ($isRelease) {
                 Copy-Item -Path $file.FullName -Destination $stagingDir -Force
             }
 
+            # Also update the source repository's About.xml and commit it if it changed
+            $sourceAboutXml = Join-Path $modDir "About\About.xml"
+            $oldVer = ""
+            if (Test-Path $sourceAboutXml) {
+                $xml = New-Object System.Xml.XmlDocument
+                $xml.Load([System.IO.Path]::GetFullPath($sourceAboutXml))
+                if ($null -ne $xml.ModMetaData -and $null -ne $xml.ModMetaData.modVersion) {
+                    $oldVer = $xml.ModMetaData.modVersion.Trim()
+                }
+            }
+
+            Update-AboutXmlVersion -xmlPath $sourceAboutXml -version $modVersion
+            if ($oldVer -ne $modVersion -and $env:GITHUB_ACTIONS -eq "true") {
+                git add $sourceAboutXml
+                git commit -m "Bump $modName version to $modVersion"
+            }
+
             # Update version in the staging copy of About.xml
             $stagingAboutXml = Join-Path $stagingDir "About\About.xml"
-            Update-AboutXmlVersion -xmlPath $stagingAboutXml -version $version
-
-            # Also update the source repository's About.xml and commit it
-            $sourceAboutXml = Join-Path $modDir "About\About.xml"
-            Update-AboutXmlVersion -xmlPath $sourceAboutXml -version $version
-            if ($isRelease -and $env:GITHUB_ACTIONS -eq "true") {
-                git add $sourceAboutXml
-                git commit -m "Bump $modName version to $version"
-                git push origin HEAD
-            }
+            Update-AboutXmlVersion -xmlPath $stagingAboutXml -version $modVersion
 
             # Compress mod archive
-            $zipName = "$modName-$version.zip"
+            $zipName = "$modName-$modVersion.zip"
             $zipPath = Join-Path $rootPath $zipName
-            if (Test-Path $zipPath) {
-                Remove-Item $zipPath -Force
-            }
+            if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
             
             Write-Host "Creating zip package: $zipName" -ForegroundColor Gray
             Compress-Archive -Path $stagingDir -DestinationPath $zipPath -Force
-
-            # Gather commits for release changelog
-            if ($null -ne $latestTag) {
-                $changelog = git log "$latestTag..HEAD" --oneline -- $modName
-            }
-            else {
-                $changelog = git log --oneline -- $modName
-            }
-
-            $notesFile = [System.IO.Path]::GetTempFileName()
-            $notesContent = @("### Changes in this release:", "")
-            if ($null -ne $changelog -and $changelog.Length -gt 0) {
-                foreach ($c in $changelog) {
-                    $cleanCommit = $c -replace '^[a-f0-9]+\s+', ''
-                    $notesContent += "- $cleanCommit"
-                }
-            }
-            else {
-                $notesContent += "- Initial release."
-            }
-            $notesContent | Out-File -FilePath $notesFile -Encoding utf8
-
-            # Tag repository and push to GitHub
-            Write-Host "Tagging repository: $tag" -ForegroundColor Gray
-            git tag $tag
-            git push origin $tag
-
-            # Create GitHub release and upload zip
-            Write-Host "Creating GitHub Release and uploading asset..." -ForegroundColor Gray
-            gh release create $tag $zipPath --title "$modName v$version" --notes-file $notesFile
+            $zipPaths += $zipPath
             
-            # Clean up temp files
-            Remove-Item $notesFile -Force
-            Remove-Item $zipPath -Force
-            Write-Host "Successfully completed release for $modName v$version!" -ForegroundColor Green
+            # Gather commits for release changelog
+            $notesContent += "#### $modName (v$modVersion)"
+            if ($oldVer -ne $modVersion -and $null -ne $latestGlobalTag) {
+                $changelog = git log "$latestGlobalTag..HEAD" --oneline -- $modName
+                if ($null -ne $changelog -and $changelog.Length -gt 0) {
+                    foreach ($c in $changelog) {
+                        $cleanCommit = $c -replace '^[a-f0-9]+\s+', ''
+                        $notesContent += "- $cleanCommit"
+                    }
+                } else {
+                    $notesContent += "- Internal updates."
+                }
+            } elseif ($oldVer -eq $modVersion) {
+                $notesContent += "- No changes in this release."
+            } else {
+                $notesContent += "- Initial release or no previous tag."
+            }
+            $notesContent += ""
         }
+        
+        if ($env:GITHUB_ACTIONS -eq "true") {
+            # Push all About.xml commits
+            git push origin HEAD
+        }
+
+        $notesFile = [System.IO.Path]::GetTempFileName()
+        $notesContent | Out-File -FilePath $notesFile -Encoding utf8
+
+        # Tag repository and push to GitHub
+        Write-Host "Tagging repository globally: $globalTag" -ForegroundColor Gray
+        git tag $globalTag
+        git push origin $globalTag
+
+        # Create ONE GitHub release and upload ALL zips
+        Write-Host "Creating GitHub Release and uploading assets..." -ForegroundColor Gray
+        $ghArgs = @("release", "create", $globalTag, "--title", "Release $globalTag", "--notes-file", $notesFile)
+        foreach ($zip in $zipPaths) { $ghArgs += $zip }
+        
+        & gh $ghArgs
+        
+        # Clean up temp files
+        Remove-Item $notesFile -Force
+        foreach ($zip in $zipPaths) { Remove-Item $zip -Force }
+        Write-Host "Successfully completed global release $globalTag!" -ForegroundColor Green
     }
 
     # Clean up staging parent folder
