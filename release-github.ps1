@@ -91,24 +91,13 @@ function Update-AboutXmlVersion {
 
 # Function to calculate next global version
 function Get-NextGlobalVersion {
-    param([string]$lastTag, [string]$defaultVersion)
-    if ([string]::IsNullOrEmpty($lastTag)) { return $defaultVersion }
-    $versionStr = $lastTag -replace "^v", ""
-    if ($versionStr -match '^\d+\.\d+\.\d+$') {
-        $parts = $versionStr -split '\.'
-        $major = [int]$parts[0]; $minor = [int]$parts[1]; $patch = [int]$parts[2]
-        $commits = git log "$lastTag..HEAD" --oneline
-        $bump = "patch"
-        foreach ($commit in $commits) {
-            if ($commit -match '\[major\]|breaking|!') { $bump = "major"; break }
-            elseif ($commit -match '\[minor\]|feat') { $bump = "minor" }
-        }
-        if ($bump -eq "major") { $major++; $minor = 0; $patch = 0 }
-        elseif ($bump -eq "minor") { $minor++; $patch = 0 }
-        else { $patch++ }
-        return "$major.$minor.$patch"
+    param([string]$lastTag)
+    if ([string]::IsNullOrEmpty($lastTag)) { return "1" }
+    $versionStr = $lastTag -replace "^Release-", ""
+    if ([int]::TryParse($versionStr, [ref]$null)) {
+        return ([int]$versionStr + 1).ToString()
     }
-    return $defaultVersion
+    return "1"
 }
 
 # Function to calculate next mod version based on About.xml and changes
@@ -241,8 +230,8 @@ if ($isRelease) {
         Remove-Item $stagingParent -Recurse -Force
     }
 
-    # Find the latest global Git tag (e.g. v*)
-    $tags = git tag -l "v*" --sort=-v:refname | Where-Object { $_ -match "^v\d+\.\d+\.\d+$" }
+    # Find the latest global Git tag (e.g. Release-*)
+    $tags = git tag -l "Release-*" | Sort-Object { [int]($_ -replace "^Release-", "") } -Descending
     $latestGlobalTag = $null
     if ($null -ne $tags -and $tags.Count -gt 0) {
         $latestGlobalTag = $tags[0]
@@ -265,12 +254,12 @@ if ($isRelease) {
     if (-not $anyChanges) {
         Write-Host "No changes detected in any mod since $latestGlobalTag. Skipping release." -ForegroundColor Yellow
     } else {
-        $nextGlobalVersion = Get-NextGlobalVersion -lastTag $latestGlobalTag -defaultVersion "1.0.0"
-        $globalTag = "v$nextGlobalVersion"
+        $nextGlobalVersion = Get-NextGlobalVersion -lastTag $latestGlobalTag
+        $globalTag = "Release-$nextGlobalVersion"
         Write-Host "Target Global Release Version: $nextGlobalVersion (Tag: $globalTag)" -ForegroundColor Cyan
         
         $zipPaths = @()
-        $notesContent = @("### Consolidated Release $globalTag", "")
+        $notesContent = @("### Release #$nextGlobalVersion", "")
         
         foreach ($mod in $mods) {
             $modName = $mod.Name
@@ -372,7 +361,7 @@ if ($isRelease) {
 
         # Create ONE GitHub release and upload ALL zips
         Write-Host "Creating GitHub Release and uploading assets..." -ForegroundColor Gray
-        $ghArgs = @("release", "create", $globalTag, "--title", "Release $globalTag", "--notes-file", $notesFile)
+        $ghArgs = @("release", "create", $globalTag, "--title", "Release #$nextGlobalVersion", "--notes-file", $notesFile)
         foreach ($zip in $zipPaths) { $ghArgs += $zip }
         
         & gh $ghArgs
