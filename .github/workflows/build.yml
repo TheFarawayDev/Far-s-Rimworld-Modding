@@ -30,4 +30,4 @@ jobs:
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         IS_RELEASE: ${{ (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')) || github.event_name == 'workflow_dispatch' }}
-      run: powershell -ExecutionPolicy Bypass -File .\release-github.ps1
+      run: pwsh -ExecutionPolicy Bypass -File .\release-github.ps1

@@ -6,29 +6,34 @@ $ErrorActionPreference = "Stop"
 # Define the mods, their compilation order, and their dependencies
 $mods = @(
     @{
-        Name = "FarUtils"
-        NeedsHarmony = $true
+        Name          = "FarUtils"
+        NeedsHarmony  = $true
         NeedsFarUtils = $false
     },
     @{
-        Name = "BlightedAlert"
-        NeedsHarmony = $false
+        Name          = "BlightedAlert"
+        NeedsHarmony  = $false
         NeedsFarUtils = $true
     },
     @{
-        Name = "AreaInclusionExclusion"
-        NeedsHarmony = $true
+        Name          = "AreaInclusionExclusion"
+        NeedsHarmony  = $true
         NeedsFarUtils = $true
     },
     @{
-        Name = "CallForATrader"
-        NeedsHarmony = $true
+        Name          = "CallForATrader"
+        NeedsHarmony  = $true
         NeedsFarUtils = $true
     },
     @{
-        Name = "TheGarbageCollector"
-        NeedsHarmony = $true
+        Name          = "TheGarbageCollector"
+        NeedsHarmony  = $true
         NeedsFarUtils = $true
+    },
+    @{
+        Name          = "AndroidTiersContinuedPatch"
+        NeedsHarmony  = $true
+        NeedsFarUtils = $false
     }
 )
 

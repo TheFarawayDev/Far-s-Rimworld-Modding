@@ -878,7 +878,7 @@ namespace CallForATrader
         }
 
         // 2. Orbital Trader Select Node
-        public static DiaNode MakeOrbitalTraderSelectNode(Map map, Building_CommsConsole console, Pawn negotiator)
+        public static DiaNode MakeOrbitalTraderSelectNode(Map map, Building_CommsConsole console, Pawn negotiator, int page = 0)
         {
             DiaNode node = new DiaNode("Which orbital trade ship would you like to request to jump to this system?");
 
@@ -891,8 +891,18 @@ namespace CallForATrader
                 }
             }
 
-            foreach (TraderKindDef def in traders)
+            traders.Sort((a, b) => a.label.CompareTo(b.label));
+
+            int optionsPerPage = 7;
+            int totalPages = (int)Math.Ceiling((double)traders.Count / optionsPerPage);
+            if (totalPages == 0) totalPages = 1;
+            
+            int startIndex = page * optionsPerPage;
+            int endIndex = Math.Min(startIndex + optionsPerPage, traders.Count);
+
+            for (int i = startIndex; i < endIndex; i++)
             {
+                TraderKindDef def = traders[i];
                 DiaOption opt = new DiaOption(def.LabelCap.ToString());
                 opt.resolveTree = false;
                 opt.action = delegate
@@ -900,6 +910,28 @@ namespace CallForATrader
                     opt.link = MakeOrbitalDispatchChannelNode(map, console, negotiator, def);
                 };
                 node.options.Add(opt);
+            }
+
+            if (page > 0)
+            {
+                DiaOption prev = new DiaOption("<< Previous Page");
+                prev.resolveTree = false;
+                prev.action = delegate
+                {
+                    prev.link = MakeOrbitalTraderSelectNode(map, console, negotiator, page - 1);
+                };
+                node.options.Add(prev);
+            }
+
+            if (page < totalPages - 1)
+            {
+                DiaOption next = new DiaOption("Next Page >>");
+                next.resolveTree = false;
+                next.action = delegate
+                {
+                    next.link = MakeOrbitalTraderSelectNode(map, console, negotiator, page + 1);
+                };
+                node.options.Add(next);
             }
 
             DiaOption back = new DiaOption("Go Back");
@@ -914,7 +946,7 @@ namespace CallForATrader
         }
 
         // 3. Caravan Trader Select Node
-        public static DiaNode MakeCaravanTraderSelectNode(Map map, Building_CommsConsole console, Pawn negotiator)
+        public static DiaNode MakeCaravanTraderSelectNode(Map map, Building_CommsConsole console, Pawn negotiator, int page = 0)
         {
             DiaNode node = new DiaNode("Which caravan trader would you like to request to visit this colony?");
 
@@ -927,8 +959,18 @@ namespace CallForATrader
                 }
             }
 
-            foreach (TraderKindDef def in traders)
+            traders.Sort((a, b) => a.label.CompareTo(b.label));
+
+            int optionsPerPage = 7;
+            int totalPages = (int)Math.Ceiling((double)traders.Count / optionsPerPage);
+            if (totalPages == 0) totalPages = 1;
+            
+            int startIndex = page * optionsPerPage;
+            int endIndex = Math.Min(startIndex + optionsPerPage, traders.Count);
+
+            for (int i = startIndex; i < endIndex; i++)
             {
+                TraderKindDef def = traders[i];
                 DiaOption opt = new DiaOption(def.LabelCap.ToString());
                 opt.resolveTree = false;
                 opt.action = delegate
@@ -936,6 +978,28 @@ namespace CallForATrader
                     opt.link = MakeCaravanDispatchChannelNode(map, console, negotiator, def);
                 };
                 node.options.Add(opt);
+            }
+
+            if (page > 0)
+            {
+                DiaOption prev = new DiaOption("<< Previous Page");
+                prev.resolveTree = false;
+                prev.action = delegate
+                {
+                    prev.link = MakeCaravanTraderSelectNode(map, console, negotiator, page - 1);
+                };
+                node.options.Add(prev);
+            }
+
+            if (page < totalPages - 1)
+            {
+                DiaOption next = new DiaOption("Next Page >>");
+                next.resolveTree = false;
+                next.action = delegate
+                {
+                    next.link = MakeCaravanTraderSelectNode(map, console, negotiator, page + 1);
+                };
+                node.options.Add(next);
             }
 
             DiaOption back = new DiaOption("Go Back");

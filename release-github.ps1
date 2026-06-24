@@ -6,29 +6,34 @@ $ErrorActionPreference = "Stop"
 # Define the mods, their compilation order, and their dependencies
 $mods = @(
     @{
-        Name = "FarUtils"
-        NeedsHarmony = $true
+        Name          = "FarUtils"
+        NeedsHarmony  = $true
         NeedsFarUtils = $false
     },
     @{
-        Name = "BlightedAlert"
-        NeedsHarmony = $false
+        Name          = "BlightedAlert"
+        NeedsHarmony  = $false
         NeedsFarUtils = $true
     },
     @{
-        Name = "AreaInclusionExclusion"
-        NeedsHarmony = $true
+        Name          = "AreaInclusionExclusion"
+        NeedsHarmony  = $true
         NeedsFarUtils = $true
     },
     @{
-        Name = "CallForATrader"
-        NeedsHarmony = $true
+        Name          = "CallForATrader"
+        NeedsHarmony  = $true
         NeedsFarUtils = $true
     },
     @{
-        Name = "TheGarbageCollector"
-        NeedsHarmony = $true
+        Name          = "TheGarbageCollector"
+        NeedsHarmony  = $true
         NeedsFarUtils = $true
+    },
+    @{
+        Name          = "AndroidTiersContinuedPatch"
+        NeedsHarmony  = $true
+        NeedsFarUtils = $false
     }
 )
 
@@ -40,7 +45,8 @@ $isRelease = $null -ne $env:IS_RELEASE -and $env:IS_RELEASE -eq "true"
 Write-Host "Starting RimWorld Mod Compilation Workflow..." -ForegroundColor Cyan
 if ($isRelease) {
     Write-Host "Release mode is ENABLED. Mod updates will be auto-versioned, tagged, and published." -ForegroundColor Green
-} else {
+}
+else {
     Write-Host "Release mode is DISABLED. Performing compilation only." -ForegroundColor Yellow
 }
 
@@ -73,10 +79,12 @@ function Update-AboutXmlVersion {
             $versionNode.InnerText = $version
             $xml.Save($fullPath)
             Write-Host "Successfully updated modVersion in About.xml." -ForegroundColor Green
-        } else {
+        }
+        else {
             Write-Warning "Could not find <ModMetaData> node in About.xml."
         }
-    } else {
+    }
+    else {
         Write-Warning "About.xml not found at: $xmlPath"
     }
 }
@@ -130,10 +138,12 @@ function Get-NextVersion {
             $major++
             $minor = 0
             $patch = 0
-        } elseif ($bump -eq "minor") {
+        }
+        elseif ($bump -eq "minor") {
             $minor++
             $patch = 0
-        } else {
+        }
+        else {
             $patch++
         }
 
@@ -245,10 +255,12 @@ if ($isRelease) {
             if ($diffCount -gt 0) {
                 Write-Host "Detected $diffCount changed file(s) since last tag ($latestTag)." -ForegroundColor Green
                 $needsRelease = $true
-            } else {
+            }
+            else {
                 Write-Host "No changes detected since $latestTag. Skipping release." -ForegroundColor Gray
             }
-        } else {
+        }
+        else {
             Write-Host "No prior tag found for $modName. Initial release will be created." -ForegroundColor Green
             $needsRelease = $true
         }
@@ -303,7 +315,8 @@ if ($isRelease) {
             # Gather commits for release changelog
             if ($null -ne $latestTag) {
                 $changelog = git log "$latestTag..HEAD" --oneline -- $modName
-            } else {
+            }
+            else {
                 $changelog = git log --oneline -- $modName
             }
 
@@ -314,7 +327,8 @@ if ($isRelease) {
                     $cleanCommit = $c -replace '^[a-f0-9]+\s+', ''
                     $notesContent += "- $cleanCommit"
                 }
-            } else {
+            }
+            else {
                 $notesContent += "- Initial release."
             }
             $notesContent | Out-File -FilePath $notesFile -Encoding utf8
