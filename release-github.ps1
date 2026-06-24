@@ -231,9 +231,9 @@ if ($isRelease) {
     }
 
     # Find the latest global Git tag (e.g. Release-*)
-    $tags = git tag -l "Release-*" | Sort-Object { [int]($_ -replace "^Release-", "") } -Descending
+    $tags = @(git tag -l "Release-*" | Sort-Object { [int]($_ -replace "^Release-", "") } -Descending | Where-Object { $_ -ne "" })
     $latestGlobalTag = $null
-    if ($null -ne $tags -and $tags.Count -gt 0) {
+    if ($tags.Count -gt 0) {
         $latestGlobalTag = $tags[0]
     }
 
