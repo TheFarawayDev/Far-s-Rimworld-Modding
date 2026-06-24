@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
   <name>Blighted Alert</name>
   <author>TheFarawayDev</author>
@@ -17,4 +17,5 @@
   <loadAfter>
     <li>thefarawaydev.farutils</li>
   </loadAfter>
+  <modVersion>1.0.0</modVersion>
 </ModMetaData>
