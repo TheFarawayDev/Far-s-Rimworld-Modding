@@ -105,6 +105,26 @@ foreach ($mod in $mods) {
         if ($LASTEXITCODE -ne 0) {
             throw "Failed to compile mod: $modName"
         }
+        
+        # Copy compiled assemblies to all supported versions from About.xml
+        $aboutXmlPath = Join-Path $modDir "About\About.xml"
+        if (Test-Path $aboutXmlPath) {
+            $xml = New-Object System.Xml.XmlDocument
+            $xml.Load([System.IO.Path]::GetFullPath($aboutXmlPath))
+            if ($null -ne $xml.ModMetaData.supportedVersions) {
+                $supportedVersions = $xml.ModMetaData.supportedVersions.li
+                foreach ($ver in $supportedVersions) {
+                    if ($ver -ne "1.6") {
+                        $targetDir = Join-Path $modDir "$ver\Assemblies"
+                        if (-not (Test-Path $targetDir)) {
+                            New-Item -ItemType Directory -Path $targetDir -Force | Out-Null
+                        }
+                        Copy-Item -Path (Join-Path $modDir "1.6\Assemblies\*") -Destination $targetDir -Recurse -Force
+                    }
+                }
+            }
+        }
+        
         Write-Host "Successfully compiled $modName!" -ForegroundColor Green
     }
     catch {

@@ -46,7 +46,7 @@ $refs = @(
     "$managedDir\netstandard.dll",
     "$managedDir\Unity.Mathematics.dll",
     "$assembliesDir\0Harmony.dll",
-    "$atcDll",
+
     "System.dll",
     "System.Core.dll",
     "System.Xml.dll"
@@ -86,10 +86,24 @@ foreach ($dir in @("About", "Defs", "Patches", "Textures", "Languages")) {
     }
 }
 
-# Copy assemblies
-Copy-Item "$assembliesDir\AndroidTiersContinuedPatch.dll" "$deployDir\1.6\Assemblies\" -Force
-if (Test-Path $harmonyTarget) {
-    Copy-Item $harmonyTarget "$deployDir\1.6\Assemblies\" -Force
+# Copy assemblies for all supported versions
+$aboutXmlPath = Join-Path $modDir "About\About.xml"
+if (Test-Path $aboutXmlPath) {
+    $xml = New-Object System.Xml.XmlDocument
+    $xml.Load([System.IO.Path]::GetFullPath($aboutXmlPath))
+    if ($null -ne $xml.ModMetaData.supportedVersions) {
+        $supportedVersions = $xml.ModMetaData.supportedVersions.li
+        foreach ($ver in $supportedVersions) {
+            $deployVersionDir = "$deployDir\$ver\Assemblies"
+            if (-not (Test-Path $deployVersionDir)) {
+                New-Item -ItemType Directory -Path $deployVersionDir -Force | Out-Null
+            }
+            Copy-Item "$assembliesDir\AndroidTiersContinuedPatch.dll" $deployVersionDir -Force
+            if (Test-Path $harmonyTarget) {
+                Copy-Item $harmonyTarget $deployVersionDir -Force
+            }
+        }
+    }
 }
 
 Write-Host "Android Tiers Continued Patch deployed successfully!" -ForegroundColor Green
