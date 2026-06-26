@@ -152,7 +152,7 @@
     </statBases>
     <constructionSkillPrerequisite>8</constructionSkillPrerequisite>
     <researchPrerequisites>
-      <li>AdvancedQuarrying</li>
+      <li>ColossalQuarrying</li>
     </researchPrerequisites>
   </ThingDef>
 
@@ -180,7 +180,7 @@
     </statBases>
     <constructionSkillPrerequisite>10</constructionSkillPrerequisite>
     <researchPrerequisites>
-      <li>AdvancedQuarrying</li>
+      <li>ColossalQuarrying</li>
     </researchPrerequisites>
   </ThingDef>
 
@@ -208,7 +208,7 @@
     </statBases>
     <constructionSkillPrerequisite>12</constructionSkillPrerequisite>
     <researchPrerequisites>
-      <li>AdvancedQuarrying</li>
+      <li>ColossalQuarrying</li>
     </researchPrerequisites>
   </ThingDef>
 

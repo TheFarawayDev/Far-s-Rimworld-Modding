@@ -89,9 +89,10 @@ Configurable in mod settings:
 
 [h2]Changelog[/h2]
 
-[b]v1.3[/b] - Mechanoid Support
+[b]v1.3[/b] - Mechanoid Support & Colossal Research
 [list]
 [*] Mechanoids (like Tunnelers) that have Mining enabled can now work in quarries.
+[*] Added a new research project "Colossal Quarrying" required to unlock the Colossal, Titan, and Omega quarries.
 [/list]
 
 [b]v1.2[/b] - The Colossal Expansion
