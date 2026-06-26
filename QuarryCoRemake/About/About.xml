@@ -6,5 +6,5 @@
   <supportedVersions>
     <li>1.6</li>
   </supportedVersions>
-  <description>Adds quarry pits in three sizes for extracting stone chunks and minerals. Multiple miners can work a quarry simultaneously. Spawned resources are auto-marked for hauling. Larger quarries yield rarer materials and support more workers.</description>
+  <description>Adds quarry pits in seven sizes for extracting stone chunks and minerals, culminating in the massive Colossal, Titan, and Omega quarries which yield almost pure ore. Multiple miners (including Tunnelers and other mechanoids) can work a quarry simultaneously. Spawned resources are auto-marked for hauling. Larger quarries yield significantly rarer materials and support more workers.</description>
 </ModMetaData>
