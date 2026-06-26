@@ -9,12 +9,13 @@ namespace QuarryCo
     {
         private bool active = true;
 
-        public bool IsActive => active && !ForbidUtility.IsForbidden(this, Faction.OfPlayer) && Map != null;
+        public bool IsActive { get { return active && !ForbidUtility.IsForbidden(this, Faction.OfPlayer) && Map != null; } }
 
         public QuarrySize Size
         {
             get
             {
+                if (def.size.x >= 15) return QuarrySize.Omega;
                 if (def.size.x >= 13) return QuarrySize.Titan;
                 if (def.size.x >= 11) return QuarrySize.Colossal;
                 if (def.size.x >= 9) return QuarrySize.Grand;
@@ -24,7 +25,7 @@ namespace QuarryCo
             }
         }
 
-        public int MaxWorkers => Mathf.Max(1, Mathf.RoundToInt(def.size.x * def.size.z * QuarryCoMod.Settings.WorkersPerTile));
+        public int MaxWorkers { get { return Mathf.Max(1, Mathf.RoundToInt(def.size.x * def.size.z * QuarryCoMod.Settings.WorkersPerTile)); } }
 
         public override void ExposeData()
         {
@@ -73,52 +74,98 @@ namespace QuarryCo
         {
             float roll = Rand.Value;
 
-            if (Size == QuarrySize.Titan)
+            if (Size == QuarrySize.Omega)
             {
-                // Titan: stone 1%, steel 8%, slag 3%, silver 8%, gold 20%, jade 20%, plasteel 20%, uranium 10%, components 10%
-                if (roll < 0.20f)
+                // Omega: stone 0%, steel 45%, gold 10%, jade 10%, plasteel 10%, uranium 10%, components 10%, silver 5%
+                if (roll < 0.45f)
+                {
+                    def = ThingDefOf.Steel;
+                    amount = Rand.RangeInclusive(50, 100);
+                    return;
+                }
+                if (roll < 0.55f)
                 {
                     def = ThingDefOf.Gold;
-                    amount = Rand.RangeInclusive(8, 20);
-                    return;
-                }
-                if (roll < 0.40f)
-                {
-                    def = ThingDefOf.Jade;
-                    amount = Rand.RangeInclusive(8, 20);
-                    return;
-                }
-                if (roll < 0.60f)
-                {
-                    def = ThingDefOf.Plasteel;
                     amount = Rand.RangeInclusive(12, 25);
                     return;
                 }
-                if (roll < 0.70f)
+                if (roll < 0.65f)
+                {
+                    def = ThingDefOf.Jade;
+                    amount = Rand.RangeInclusive(12, 25);
+                    return;
+                }
+                if (roll < 0.75f)
+                {
+                    def = ThingDefOf.Plasteel;
+                    amount = Rand.RangeInclusive(15, 35);
+                    return;
+                }
+                if (roll < 0.85f)
                 {
                     def = ThingDefOf.Uranium;
-                    amount = Rand.RangeInclusive(10, 18);
+                    amount = Rand.RangeInclusive(12, 22);
                     return;
                 }
-                if (roll < 0.80f)
+                if (roll < 0.95f)
                 {
                     def = ThingDefOf.ComponentIndustrial;
-                    amount = Rand.RangeInclusive(5, 10);
+                    amount = Rand.RangeInclusive(8, 15);
                     return;
                 }
-                if (roll < 0.88f)
+                if (roll <= 1.0f)
                 {
                     def = ThingDefOf.Silver;
-                    amount = Rand.RangeInclusive(30, 60);
+                    amount = Rand.RangeInclusive(40, 80);
                     return;
                 }
-                if (roll < 0.96f)
+            }
+            else if (Size == QuarrySize.Titan)
+            {
+                // Titan: stone 2%, steel 40%, slag 2%, silver 6%, gold 10%, jade 10%, plasteel 10%, uranium 10%, components 10%
+                if (roll < 0.40f)
                 {
                     def = ThingDefOf.Steel;
                     amount = Rand.RangeInclusive(40, 80);
                     return;
                 }
-                if (roll < 0.99f)
+                if (roll < 0.50f)
+                {
+                    def = ThingDefOf.Gold;
+                    amount = Rand.RangeInclusive(8, 20);
+                    return;
+                }
+                if (roll < 0.60f)
+                {
+                    def = ThingDefOf.Jade;
+                    amount = Rand.RangeInclusive(8, 20);
+                    return;
+                }
+                if (roll < 0.70f)
+                {
+                    def = ThingDefOf.Plasteel;
+                    amount = Rand.RangeInclusive(12, 25);
+                    return;
+                }
+                if (roll < 0.80f)
+                {
+                    def = ThingDefOf.Uranium;
+                    amount = Rand.RangeInclusive(10, 18);
+                    return;
+                }
+                if (roll < 0.90f)
+                {
+                    def = ThingDefOf.ComponentIndustrial;
+                    amount = Rand.RangeInclusive(5, 10);
+                    return;
+                }
+                if (roll < 0.96f)
+                {
+                    def = ThingDefOf.Silver;
+                    amount = Rand.RangeInclusive(30, 60);
+                    return;
+                }
+                if (roll < 0.98f)
                 {
                     def = ThingDefOf.ChunkSlagSteel;
                     amount = 3;
@@ -127,47 +174,47 @@ namespace QuarryCo
             }
             else if (Size == QuarrySize.Colossal)
             {
-                // Colossal: stone 5%, steel 15%, slag 5%, silver 10%, gold 15%, jade 15%, plasteel 15%, uranium 10%, components 10%
-                if (roll < 0.15f)
+                // Colossal: stone 5%, steel 35%, slag 4%, silver 8%, gold 10%, jade 10%, plasteel 10%, uranium 10%, components 8%
+                if (roll < 0.35f)
+                {
+                    def = ThingDefOf.Steel;
+                    amount = Rand.RangeInclusive(20, 40);
+                    return;
+                }
+                if (roll < 0.45f)
                 {
                     def = ThingDefOf.Gold;
                     amount = Rand.RangeInclusive(5, 12);
                     return;
                 }
-                if (roll < 0.30f)
+                if (roll < 0.55f)
                 {
                     def = ThingDefOf.Jade;
                     amount = Rand.RangeInclusive(5, 12);
                     return;
                 }
-                if (roll < 0.45f)
+                if (roll < 0.65f)
                 {
                     def = ThingDefOf.Plasteel;
                     amount = Rand.RangeInclusive(8, 15);
                     return;
                 }
-                if (roll < 0.55f)
+                if (roll < 0.75f)
                 {
                     def = ThingDefOf.Uranium;
                     amount = Rand.RangeInclusive(6, 12);
                     return;
                 }
-                if (roll < 0.65f)
+                if (roll < 0.83f)
                 {
                     def = ThingDefOf.ComponentIndustrial;
                     amount = Rand.RangeInclusive(2, 5);
                     return;
                 }
-                if (roll < 0.75f)
+                if (roll < 0.91f)
                 {
                     def = ThingDefOf.Silver;
                     amount = Rand.RangeInclusive(15, 30);
-                    return;
-                }
-                if (roll < 0.90f)
-                {
-                    def = ThingDefOf.Steel;
-                    amount = Rand.RangeInclusive(20, 40);
                     return;
                 }
                 if (roll < 0.95f)
@@ -389,6 +436,7 @@ namespace QuarryCo
         Large,
         Grand,
         Colossal,
-        Titan
+        Titan,
+        Omega
     }
 }

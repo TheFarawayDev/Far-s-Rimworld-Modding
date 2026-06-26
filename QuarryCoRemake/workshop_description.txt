@@ -4,7 +4,7 @@
 [hr][/hr]
 
 [h2]Overview[/h2]
-Quarry Co. adds four sizes of quarry pits that let your colonists extract stone chunks and minerals from the ground. No more strip-mining the entire map for granite. Just build a quarry and assign miners. Spawned resources are automatically marked for hauling.
+Quarry Co. adds seven sizes of quarry pits that let your colonists extract stone chunks and minerals from the ground. No more strip-mining the entire map for granite. Just build a quarry and assign miners. Spawned resources are automatically marked for hauling.
 
 [h2]Buildings[/h2]
 
@@ -34,8 +34,32 @@ Quarry Co. adds four sizes of quarry pits that let your colonists extract stone 
 [*] Cost: 250 wood, 120 steel, 4 components
 [*] Up to 81 miners at once
 [*] Requires Advanced Quarrying research (Industrial tier, 1200 cost)
-[*] Highest drop rates for plasteel, uranium, gold, jade, and components
+[*] High drop rates for plasteel, uranium, gold, jade, and components
 [*] Construction skill 6 required
+[/list]
+
+[b]Colossal Quarry (11x11)[/b]
+[list]
+[*] Cost: 400 wood, 250 steel, 8 components
+[*] Up to 121 miners at once
+[*] Insanely low stone drops, very high ore and steel drops
+[*] Construction skill 8 required
+[/list]
+
+[b]Titan Quarry (13x13)[/b]
+[list]
+[*] Cost: 600 wood, 400 steel, 15 components
+[*] Up to 169 miners at once
+[*] Almost no stone waste, massively increased ore yields
+[*] Construction skill 10 required
+[/list]
+
+[b]Omega Quarry (15x15)[/b]
+[list]
+[*] Cost: 900 wood, 600 steel, 25 components
+[*] Up to 225 miners at once
+[*] Pure ore extraction with zero stone chunks, primarily steel and precious metals
+[*] Construction skill 12 required
 [/list]
 
 [h2]How It Works[/h2]
@@ -65,6 +89,13 @@ Configurable in mod settings:
 
 [h2]Changelog[/h2]
 
+[b]v1.2[/b] - The Colossal Expansion
+[list]
+[*] Added Colossal (11x11), Titan (13x13), and Omega (15x15) quarries
+[*] Massive quarries now yield mostly steel and precious ores, with almost zero stone chunks
+[*] Updated author branding to TheFarawayDev
+[/list]
+
 [b]v1.1[/b] - Grand Quarry + min skill setting
 [list]
 [*] Added Grand Quarry (9x9) with best rare material drop rates
@@ -82,6 +113,6 @@ Configurable in mod settings:
 [hr][/hr]
 
 [h2]Credits[/h2]
-[b]Author:[/b] Ted Bunions
+[b]Author:[/b] TheFarawayDev
 
 [i]If you enjoy the mod, a thumbs up helps others find it.[/i]

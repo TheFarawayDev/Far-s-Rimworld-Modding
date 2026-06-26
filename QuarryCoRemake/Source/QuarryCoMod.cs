@@ -27,7 +27,7 @@ namespace QuarryCo
             Settings = GetSettings<QuarryCoSettings>();
         }
 
-        public override string SettingsCategory() => "Quarry Co.";
+        public override string SettingsCategory() { return "Quarry Co."; }
 
         public override void DoSettingsWindowContents(Rect inRect)
         {

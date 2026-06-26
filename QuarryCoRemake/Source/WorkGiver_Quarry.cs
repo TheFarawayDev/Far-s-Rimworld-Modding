@@ -9,10 +9,9 @@ namespace QuarryCo
     {
         private static JobDef quarryJobDef;
 
-        public override ThingRequest PotentialWorkThingRequest =>
-            ThingRequest.ForGroup(ThingRequestGroup.BuildingArtificial);
+        public override ThingRequest PotentialWorkThingRequest { get { return ThingRequest.ForGroup(ThingRequestGroup.BuildingArtificial); } }
 
-        public override PathEndMode PathEndMode => PathEndMode.Touch;
+        public override PathEndMode PathEndMode { get { return PathEndMode.Touch; } }
 
         public override IEnumerable<Thing> PotentialWorkThingsGlobal(Pawn pawn)
         {
@@ -27,7 +26,8 @@ namespace QuarryCo
         {
             foreach (var building in pawn.Map.listerBuildings.allBuildingsColonist)
             {
-                if (building is Building_Quarry quarry && quarry.IsActive)
+                var quarry = building as Building_Quarry;
+                if (quarry != null && quarry.IsActive)
                     return false;
             }
             return true;
@@ -35,7 +35,8 @@ namespace QuarryCo
 
         public override bool HasJobOnThing(Pawn pawn, Thing t, bool forced = false)
         {
-            if (!(t is Building_Quarry quarry))
+            var quarry = t as Building_Quarry;
+            if (quarry == null)
                 return false;
 
             if (!quarry.IsActive)
@@ -52,7 +53,13 @@ namespace QuarryCo
 
             if (QuarryCoMod.Settings.MinMiningSkill > 0)
             {
-                int skill = pawn.skills?.GetSkill(SkillDefOf.Mining)?.Level ?? 0;
+                int skill = 0;
+                if (pawn.skills != null)
+                {
+                    var skillRecord = pawn.skills.GetSkill(SkillDefOf.Mining);
+                    if (skillRecord != null)
+                        skill = skillRecord.Level;
+                }
                 if (skill < QuarryCoMod.Settings.MinMiningSkill)
                     return false;
             }

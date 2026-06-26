@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
   <name>Quarry Co. Remake</name>
-  <author>meast</author>
+  <author>TheFarawayDev</author>
   <packageId>meast.QuarryCoRemake</packageId>
   <supportedVersions>
     <li>1.6</li>

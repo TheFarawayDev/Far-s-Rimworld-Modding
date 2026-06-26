@@ -184,4 +184,32 @@
     </researchPrerequisites>
   </ThingDef>
 
+  <!-- Omega Quarry (15x15) -->
+  <ThingDef ParentName="QuarryBase">
+    <defName>Building_QuarryOmega</defName>
+    <label>omega quarry</label>
+    <description>An unbelievably colossal excavation spanning the very limits of modern engineering. Stripping resources at this scale guarantees an unprecedented abundance of valuable ores, with almost zero stone waste.</description>
+    <graphicData>
+      <texPath>Things/Building/Quarry/Quarry</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(15,15)</drawSize>
+    </graphicData>
+    <size>(15,15)</size>
+    <costList>
+      <WoodLog>900</WoodLog>
+      <Steel>600</Steel>
+      <ComponentIndustrial>25</ComponentIndustrial>
+    </costList>
+    <statBases>
+      <MaxHitPoints>2000</MaxHitPoints>
+      <WorkToBuild>35000</WorkToBuild>
+      <Beauty>-30</Beauty>
+      <Cleanliness>-20</Cleanliness>
+    </statBases>
+    <constructionSkillPrerequisite>12</constructionSkillPrerequisite>
+    <researchPrerequisites>
+      <li>AdvancedQuarrying</li>
+    </researchPrerequisites>
+  </ThingDef>
+
 </Defs>

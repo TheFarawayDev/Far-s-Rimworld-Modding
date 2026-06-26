@@ -10,7 +10,7 @@ namespace QuarryCo
         private const int BaseWorkTicks = 3000;
         private const float MiningXpPerTick = 0.11f;
 
-        private Building_Quarry Quarry => (Building_Quarry)TargetThingA;
+        private Building_Quarry Quarry { get { return (Building_Quarry)TargetThingA; } }
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
@@ -27,7 +27,10 @@ namespace QuarryCo
             Toil mine = ToilMaker.MakeToil("MakeNewToils");
             mine.tickAction = delegate
             {
-                pawn.skills?.Learn(SkillDefOf.Mining, MiningXpPerTick);
+                if (pawn.skills != null)
+                {
+                    pawn.skills.Learn(SkillDefOf.Mining, MiningXpPerTick);
+                }
             };
             mine.defaultCompleteMode = ToilCompleteMode.Delay;
             mine.defaultDuration = BaseWorkTicks;
