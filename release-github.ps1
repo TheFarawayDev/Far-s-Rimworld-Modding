@@ -34,6 +34,11 @@ $mods = @(
         Name          = "AndroidTiersContinuedPatch"
         NeedsHarmony  = $true
         NeedsFarUtils = $false
+    },
+    @{
+        Name          = "SmartPriorities"
+        NeedsHarmony  = $true
+        NeedsFarUtils = $true
     }
 )
 
