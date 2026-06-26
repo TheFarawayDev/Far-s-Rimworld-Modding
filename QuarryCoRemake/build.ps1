@@ -42,7 +42,7 @@ $refArgs = $refs | ForEach-Object { "/r:`"$_`"" }
 # Get all C# files under Source directory
 $sources = Get-ChildItem -Path "$modDir\Source" -Filter "*.cs" | ForEach-Object { "`"$($_.FullName)`"" }
 
-$cmdArgs = @("/target:library", "/out:`"$outputDll`"", "/unsafe") + $refArgs + $sources
+$cmdArgs = @("/target:library", "/out:`"$outputDll`"", "/unsafe", "/nowarn:1684") + $refArgs + $sources
 
 & $cscPath $cmdArgs
 if ($LASTEXITCODE -ne 0) {

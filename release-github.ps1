@@ -39,6 +39,11 @@ $mods = @(
         Name          = "SmartPriorities"
         NeedsHarmony  = $true
         NeedsFarUtils = $true
+    },
+    @{
+        Name          = "QuarryCoRemake"
+        NeedsHarmony  = $false
+        NeedsFarUtils = $false
     }
 )
 
