@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <!-- Dynamically add QuarryCo_Quarrying to any ThingDef (like mechanoids) that has Mining enabled -->
+  <Operation Class="PatchOperationSequence">
+    <success>Always</success>
+    <operations>
+      <li Class="PatchOperationAdd">
+        <xpath>Defs/ThingDef[race/mechEnabledWorkTypes/li="Mining"]/race/mechEnabledWorkTypes</xpath>
+        <value>
+          <li>QuarryCo_Quarrying</li>
+        </value>
+      </li>
+    </operations>
+  </Operation>
+</Patch>

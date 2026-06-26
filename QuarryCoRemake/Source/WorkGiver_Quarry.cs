@@ -51,16 +51,10 @@ namespace QuarryCo
             if (CountQuarryWorkers(pawn.Map, t) >= quarry.MaxWorkers)
                 return false;
 
-            if (QuarryCoMod.Settings.MinMiningSkill > 0)
+            if (QuarryCoMod.Settings.MinMiningSkill > 0 && pawn.skills != null)
             {
-                int skill = 0;
-                if (pawn.skills != null)
-                {
-                    var skillRecord = pawn.skills.GetSkill(SkillDefOf.Mining);
-                    if (skillRecord != null)
-                        skill = skillRecord.Level;
-                }
-                if (skill < QuarryCoMod.Settings.MinMiningSkill)
+                var skillRecord = pawn.skills.GetSkill(SkillDefOf.Mining);
+                if (skillRecord != null && skillRecord.Level < QuarryCoMod.Settings.MinMiningSkill)
                     return false;
             }
 
