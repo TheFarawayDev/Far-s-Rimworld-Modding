@@ -1,19 +1,33 @@
-name: Build Mods
+name: Build RimWorld Mods
+
 on:
   push:
-    branches: [ "main" ]
+    branches: [ master, main ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ master, main ]
+  workflow_dispatch:
 
 jobs:
   build:
+    name: Compile and Release Mods
     runs-on: windows-latest
+    permissions:
+      contents: write
+
     steps:
-    - uses: actions/checkout@v4
-    - name: Setup .NET
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Fetch all history and tags for auto-versioning
+
+    - name: Setup .NET SDK
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
-    - name: Run Build Script
-      shell: powershell
-      run: ./build-github.ps1
+
+    - name: Run Build and Release
+      shell: pwsh
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        IS_RELEASE: ${{ (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')) || github.event_name == 'workflow_dispatch' }}
+      run: pwsh -ExecutionPolicy Bypass -File .\release-github.ps1
