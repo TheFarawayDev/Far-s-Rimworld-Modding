@@ -11,11 +11,6 @@ $mods = @(
         NeedsFarUtils = $false
     },
     @{
-        Name          = "BlightedAlert"
-        NeedsHarmony  = $false
-        NeedsFarUtils = $true
-    },
-    @{
         Name          = "AreaInclusionExclusion"
         NeedsHarmony  = $true
         NeedsFarUtils = $true
@@ -39,11 +34,6 @@ $mods = @(
         Name          = "SmartPriorities"
         NeedsHarmony  = $true
         NeedsFarUtils = $true
-    },
-    @{
-        Name          = "QuarryCoRemake"
-        NeedsHarmony  = $false
-        NeedsFarUtils = $false
     }
 )
 
@@ -257,13 +247,15 @@ if ($isRelease) {
                 break
             }
         }
-    } else {
+    }
+    else {
         $anyChanges = $true
     }
 
     if (-not $anyChanges) {
         Write-Host "No changes detected in any mod since $latestGlobalTag. Skipping release." -ForegroundColor Yellow
-    } else {
+    }
+    else {
         $nextGlobalVersion = Get-NextGlobalVersion -lastTag $latestGlobalTag
         $globalTag = "Release-$nextGlobalVersion"
         Write-Host "Target Global Release Version: $nextGlobalVersion (Tag: $globalTag)" -ForegroundColor Cyan
@@ -345,12 +337,15 @@ if ($isRelease) {
                         $cleanCommit = $c -replace '^[a-f0-9]+\s+', ''
                         $notesContent += "- $cleanCommit"
                     }
-                } else {
+                }
+                else {
                     $notesContent += "- Internal updates."
                 }
-            } elseif ($oldVer -eq $modVersion) {
+            }
+            elseif ($oldVer -eq $modVersion) {
                 $notesContent += "- No changes in this release."
-            } else {
+            }
+            else {
                 $notesContent += "- Initial release or no previous tag."
             }
             $notesContent += ""
@@ -385,6 +380,11 @@ if ($isRelease) {
     # Clean up staging parent folder
     if (Test-Path $stagingParent) {
         Remove-Item $stagingParent -Recurse -Force
+    }
+}
+
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "Workflow completed successfully." -ForegroundColor Green
     }
 }
 

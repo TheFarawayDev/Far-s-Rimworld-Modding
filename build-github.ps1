@@ -11,11 +11,6 @@ $mods = @(
         NeedsFarUtils = $false
     },
     @{
-        Name          = "BlightedAlert"
-        NeedsHarmony  = $false
-        NeedsFarUtils = $true
-    },
-    @{
         Name          = "AreaInclusionExclusion"
         NeedsHarmony  = $true
         NeedsFarUtils = $true
@@ -39,11 +34,6 @@ $mods = @(
         Name          = "SmartPriorities"
         NeedsHarmony  = $true
         NeedsFarUtils = $true
-    },
-    @{
-        Name          = "QuarryCoRemake"
-        NeedsHarmony  = $false
-        NeedsFarUtils = $false
     }
 )
 
@@ -153,6 +143,11 @@ foreach ($mod in $mods) {
             Write-Host "Removing temporary obj folder: $objDir" -ForegroundColor Gray
             Remove-Item $objDir -Recurse -Force
         }
+    }
+}
+
+Write-Host "----------------------------------------" -ForegroundColor Gray
+Write-Host "All mods compiled successfully!" -ForegroundColor Green
     }
 }
 
