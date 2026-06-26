@@ -108,29 +108,5 @@ namespace TheGarbageCollector
         }
     }
 
-    [HarmonyPatch(typeof(Building_CommsConsole), "GetFloatMenuOptions")]
-    public static class Patch_Building_CommsConsole_GetFloatMenuOptions
-    {
-        public static IEnumerable<FloatMenuOption> Postfix(IEnumerable<FloatMenuOption> __result, Building_CommsConsole __instance, Pawn selPawn)
-        {
-            if (__result != null)
-            {
-                foreach (var opt in __result)
-                {
-                    yield return opt;
-                }
-            }
-            
-            if (__instance.CanUseCommsNow)
-            {
-                yield return new FloatMenuOption("Call Garbage Collector...", delegate
-                {
-                    DiaNode rootNode = Alert_GarbageCollector.MakeRootNode();
-                    Dialog_NodeTree dialog = new Dialog_NodeTree(rootNode, true, false, "Garbage Collector");
-                    Find.WindowStack.Add(dialog);
-                });
-            }
-        }
-    }
 }
 

@@ -21,7 +21,7 @@ namespace TheGarbageCollector
         {
             get
             {
-                return 5;
+                return -1;
             }
         }
 
