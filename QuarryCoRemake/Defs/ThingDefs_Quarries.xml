@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+
+  <!-- Abstract base for all quarries -->
+  <ThingDef Name="QuarryBase" Abstract="True">
+    <thingClass>QuarryCo.Building_Quarry</thingClass>
+    <category>Building</category>
+    <altitudeLayer>FloorEmplacement</altitudeLayer>
+    <passability>Standable</passability>
+    <selectable>true</selectable>
+    <useHitPoints>true</useHitPoints>
+    <terrainAffordanceNeeded>Heavy</terrainAffordanceNeeded>
+    <designationCategory>Production</designationCategory>
+    <constructionSkillPrerequisite>4</constructionSkillPrerequisite>
+    <researchPrerequisites>
+      <li>Quarrying</li>
+    </researchPrerequisites>
+    <statBases>
+      <Beauty>-15</Beauty>
+      <Cleanliness>-5</Cleanliness>
+      <Flammability>0</Flammability>
+    </statBases>
+    <building>
+      <isEdifice>false</isEdifice>
+    </building>
+    <drawerType>MapMeshOnly</drawerType>
+    <repairEffect>ConstructDirt</repairEffect>
+    <constructEffect>ConstructDirt</constructEffect>
+    <rotatable>false</rotatable>
+    <fillPercent>0</fillPercent>
+  </ThingDef>
+
+  <!-- Small Quarry (3x3) -->
+  <ThingDef ParentName="QuarryBase">
+    <defName>Building_QuarrySmall</defName>
+    <label>small quarry</label>
+    <description>A shallow pit dug into the ground for extracting stone. Not much, but it is honest work. Pawns assigned to Mining will come here and dig out random stone and minerals.</description>
+    <graphicData>
+      <texPath>Things/Building/Quarry/Quarry</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(3,3)</drawSize>
+    </graphicData>
+    <size>(3,3)</size>
+    <costList>
+      <WoodLog>30</WoodLog>
+      <Steel>10</Steel>
+    </costList>
+    <statBases>
+      <MaxHitPoints>200</MaxHitPoints>
+      <WorkToBuild>1500</WorkToBuild>
+      <Beauty>-15</Beauty>
+      <Cleanliness>-5</Cleanliness>
+    </statBases>
+  </ThingDef>
+
+  <!-- Medium Quarry (5x5) -->
+  <ThingDef ParentName="QuarryBase">
+    <defName>Building_QuarryMedium</defName>
+    <label>quarry</label>
+    <description>A proper quarry pit for extracting stone and minerals. Deeper excavation yields a wider variety of materials.</description>
+    <graphicData>
+      <texPath>Things/Building/Quarry/Quarry</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(5,5)</drawSize>
+    </graphicData>
+    <size>(5,5)</size>
+    <costList>
+      <WoodLog>80</WoodLog>
+      <Steel>30</Steel>
+    </costList>
+    <statBases>
+      <MaxHitPoints>400</MaxHitPoints>
+      <WorkToBuild>3000</WorkToBuild>
+      <Beauty>-15</Beauty>
+      <Cleanliness>-5</Cleanliness>
+    </statBases>
+  </ThingDef>
+
+  <!-- Large Quarry (7x7) -->
+  <ThingDef ParentName="QuarryBase">
+    <defName>Building_QuarryLarge</defName>
+    <label>large quarry</label>
+    <description>A massive excavation pit. The sheer scale of this quarry allows extraction of rarer minerals like jade and gold.</description>
+    <graphicData>
+      <texPath>Things/Building/Quarry/Quarry</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(7,7)</drawSize>
+    </graphicData>
+    <size>(7,7)</size>
+    <costList>
+      <WoodLog>150</WoodLog>
+      <Steel>60</Steel>
+      <ComponentIndustrial>2</ComponentIndustrial>
+    </costList>
+    <statBases>
+      <MaxHitPoints>600</MaxHitPoints>
+      <WorkToBuild>6000</WorkToBuild>
+      <Beauty>-15</Beauty>
+      <Cleanliness>-5</Cleanliness>
+    </statBases>
+  </ThingDef>
+
+  <!-- Grand Quarry (9x9) -->
+  <ThingDef ParentName="QuarryBase">
+    <defName>Building_QuarryGrand</defName>
+    <label>grand quarry</label>
+    <description>An enormous industrial-scale excavation pit. The depth and breadth of this quarry uncovers mineral veins that smaller operations would never reach. Yields the best drop rates for rare materials like plasteel, uranium, and components.</description>
+    <graphicData>
+      <texPath>Things/Building/Quarry/Quarry</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(9,9)</drawSize>
+    </graphicData>
+    <size>(9,9)</size>
+    <costList>
+      <WoodLog>250</WoodLog>
+      <Steel>120</Steel>
+      <ComponentIndustrial>4</ComponentIndustrial>
+    </costList>
+    <statBases>
+      <MaxHitPoints>800</MaxHitPoints>
+      <WorkToBuild>10000</WorkToBuild>
+      <Beauty>-15</Beauty>
+      <Cleanliness>-5</Cleanliness>
+    </statBases>
+    <constructionSkillPrerequisite>6</constructionSkillPrerequisite>
+    <researchPrerequisites>
+      <li>AdvancedQuarrying</li>
+    </researchPrerequisites>
+  </ThingDef>
+
+  <!-- Colossal Quarry (11x11) -->
+  <ThingDef ParentName="QuarryBase">
+    <defName>Building_QuarryColossal</defName>
+    <label>colossal quarry</label>
+    <description>A monumental excavation site. Stripping away the earth on this scale reveals massive resource deposits, producing incredibly low amounts of standard stone and yielding vast quantities of valuable ores and components.</description>
+    <graphicData>
+      <texPath>Things/Building/Quarry/Quarry</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(11,11)</drawSize>
+    </graphicData>
+    <size>(11,11)</size>
+    <costList>
+      <WoodLog>400</WoodLog>
+      <Steel>250</Steel>
+      <ComponentIndustrial>8</ComponentIndustrial>
+    </costList>
+    <statBases>
+      <MaxHitPoints>1000</MaxHitPoints>
+      <WorkToBuild>15000</WorkToBuild>
+      <Beauty>-20</Beauty>
+      <Cleanliness>-10</Cleanliness>
+    </statBases>
+    <constructionSkillPrerequisite>8</constructionSkillPrerequisite>
+    <researchPrerequisites>
+      <li>AdvancedQuarrying</li>
+    </researchPrerequisites>
+  </ThingDef>
+
+  <!-- Titan Quarry (13x13) -->
+  <ThingDef ParentName="QuarryBase">
+    <defName>Building_QuarryTitan</defName>
+    <label>titan quarry</label>
+    <description>An incomprehensibly massive excavation site. Tearing through the earth's crust to this depth practically guarantees pulling out the richest veins of ores, with almost zero stone chunk waste.</description>
+    <graphicData>
+      <texPath>Things/Building/Quarry/Quarry</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(13,13)</drawSize>
+    </graphicData>
+    <size>(13,13)</size>
+    <costList>
+      <WoodLog>600</WoodLog>
+      <Steel>400</Steel>
+      <ComponentIndustrial>15</ComponentIndustrial>
+    </costList>
+    <statBases>
+      <MaxHitPoints>1500</MaxHitPoints>
+      <WorkToBuild>25000</WorkToBuild>
+      <Beauty>-25</Beauty>
+      <Cleanliness>-15</Cleanliness>
+    </statBases>
+    <constructionSkillPrerequisite>10</constructionSkillPrerequisite>
+    <researchPrerequisites>
+      <li>AdvancedQuarrying</li>
+    </researchPrerequisites>
+  </ThingDef>
+
+</Defs>

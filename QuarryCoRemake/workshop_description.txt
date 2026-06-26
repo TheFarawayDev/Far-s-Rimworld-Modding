@@ -1,0 +1,87 @@
+[h1]Quarry Co.[/h1]
+[i]Dig in. Literally.[/i]
+
+[hr][/hr]
+
+[h2]Overview[/h2]
+Quarry Co. adds four sizes of quarry pits that let your colonists extract stone chunks and minerals from the ground. No more strip-mining the entire map for granite. Just build a quarry and assign miners. Spawned resources are automatically marked for hauling.
+
+[h2]Buildings[/h2]
+
+[b]Small Quarry (3x3)[/b]
+[list]
+[*] Cost: 30 wood, 10 steel
+[*] Up to 9 miners at once
+[*] Yields stone chunks, steel, slag, silver, and components
+[/list]
+
+[b]Quarry (5x5)[/b]
+[list]
+[*] Cost: 80 wood, 30 steel
+[*] Up to 25 miners at once
+[*] Same drops as small, plus gold, jade, plasteel, and uranium
+[/list]
+
+[b]Large Quarry (7x7)[/b]
+[list]
+[*] Cost: 150 wood, 60 steel, 2 components
+[*] Up to 49 miners at once
+[*] Great drop rates for rare materials
+[/list]
+
+[b]Grand Quarry (9x9)[/b]
+[list]
+[*] Cost: 250 wood, 120 steel, 4 components
+[*] Up to 81 miners at once
+[*] Requires Advanced Quarrying research (Industrial tier, 1200 cost)
+[*] Highest drop rates for plasteel, uranium, gold, jade, and components
+[*] Construction skill 6 required
+[/list]
+
+[h2]How It Works[/h2]
+[list]
+[*] Build a quarry (requires Quarrying research, 400 cost, Neolithic tier)
+[*] Pawns assigned to Mining will automatically work the quarry
+[*] Multiple pawns can mine the same quarry simultaneously (1 per tile)
+[*] Each mining cycle produces a random resource based on quarry size
+[*] Resources spawn unforbidden with a haul designation
+[*] Toggle quarrying on/off with the gizmo button
+[/list]
+
+[h2]Settings[/h2]
+Configurable in mod settings:
+[list]
+[*] Workers per tile multiplier (default 1.0x, range 0.1-3.0)
+[*] Auto-haul quarried resources (default on)
+[*] Minimum mining skill (default 0, range 0-20)
+[/list]
+
+[h2]Compatibility[/h2]
+[list]
+[*] [b]Vanilla-friendly[/b] - no DLC required
+[*] [b]Safe to add mid-save[/b]
+[*] [b]RimWorld 1.6[/b]
+[/list]
+
+[h2]Changelog[/h2]
+
+[b]v1.1[/b] - Grand Quarry + min skill setting
+[list]
+[*] Added Grand Quarry (9x9) with best rare material drop rates
+[*] Added Advanced Quarrying research (Industrial tier, requires Quarrying)
+[*] Added minimum mining skill setting (set to 0 to allow any pawn)
+[/list]
+
+[b]v1.0[/b] - Initial release
+[list]
+[*] Added small, medium, and large quarries
+[*] Multiple miners per quarry, auto-haul on spawned resources
+[*] Random resource drops scaled by quarry size
+[/list]
+
+[hr][/hr]
+
+[h2]Credits[/h2]
+[b]Author:[/b] Ted Bunions
+
+[i]If you enjoy the mod, a thumbs up helps others find it.[/i]

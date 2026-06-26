@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <name>Quarry Co. Remake</name>
+  <author>meast</author>
+  <packageId>meast.QuarryCoRemake</packageId>
+  <supportedVersions>
+    <li>1.6</li>
+  </supportedVersions>
+  <description>Adds quarry pits in three sizes for extracting stone chunks and minerals. Multiple miners can work a quarry simultaneously. Spawned resources are auto-marked for hauling. Larger quarries yield rarer materials and support more workers.</description>
+</ModMetaData>

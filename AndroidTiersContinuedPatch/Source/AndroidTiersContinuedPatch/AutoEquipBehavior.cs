@@ -97,6 +97,10 @@ namespace AndroidTiersContinuedPatch
             if (pawn.Faction != Faction.OfPlayer)
                 return null;
 
+            // Do not interrupt important wait jobs like Bestowing Ceremony or other Lord duties
+            if (pawn.CurJob != null && (pawn.CurJob.def == JobDefOf.Wait_MaintainPosture || pawn.CurJob.def.defName == "Wait_Downed" || pawn.CurJob.def.defName == "Wait_SafeTemperature"))
+                return null;
+
             return base.TryGiveJob(pawn);
         }
     }
@@ -131,6 +135,11 @@ namespace AndroidTiersContinuedPatch
 
             if (pawn.Drafted || pawn.IsBurning() || pawn.Downed)
                 return null;
+
+            // Do not interrupt important wait jobs like Bestowing Ceremony or other Lord duties
+            if (pawn.CurJob != null && (pawn.CurJob.def == JobDefOf.Wait_MaintainPosture || pawn.CurJob.def.defName == "Wait_Downed" || pawn.CurJob.def.defName == "Wait_SafeTemperature"))
+                return null;
+
 
             ThingWithComps currentWeapon = pawn.equipment.Primary;
             float currentScore = GetWeaponScore(currentWeapon);
