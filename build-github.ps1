@@ -147,9 +147,4 @@ foreach ($mod in $mods) {
 }
 
 Write-Host "----------------------------------------" -ForegroundColor Gray
-Write-Host "All mods compiled successfully!" -ForegroundColor Green
-    }
-}
-
-Write-Host "----------------------------------------" -ForegroundColor Gray
-Write-Host "All mods compiled successfully!" -ForegroundColor Green
+Write-Host "All mods compiled successfully!" -ForegroundColor Green

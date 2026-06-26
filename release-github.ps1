@@ -353,7 +353,7 @@ if ($isRelease) {
         
         if ($env:GITHUB_ACTIONS -eq "true") {
             # Push all About.xml commits
-            git push origin HEAD
+            # git push origin HEAD
         }
 
         $notesFile = [System.IO.Path]::GetTempFileName()
@@ -362,14 +362,14 @@ if ($isRelease) {
         # Tag repository and push to GitHub
         Write-Host "Tagging repository globally: $globalTag" -ForegroundColor Gray
         git tag $globalTag
-        git push origin $globalTag
+        # git push origin $globalTag
 
         # Create ONE GitHub release and upload ALL zips
-        Write-Host "Creating GitHub Release and uploading assets..." -ForegroundColor Gray
-        $ghArgs = @("release", "create", $globalTag, "--title", "Release #$nextGlobalVersion", "--notes-file", $notesFile)
-        foreach ($zip in $zipPaths) { $ghArgs += $zip }
+        # Write-Host "Creating GitHub Release and uploading assets..." -ForegroundColor Gray
+        # $ghArgs = @("release", "create", $globalTag, "--title", "Release #$nextGlobalVersion", "--notes-file", $notesFile)
+        # foreach ($zip in $zipPaths) { $ghArgs += $zip }
         
-        & gh $ghArgs
+        # & gh $ghArgs
         
         # Clean up temp files
         Remove-Item $notesFile -Force
@@ -385,8 +385,4 @@ if ($isRelease) {
 
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "Workflow completed successfully." -ForegroundColor Green
-    }
-}
 
-Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "Workflow completed successfully." -ForegroundColor Green
