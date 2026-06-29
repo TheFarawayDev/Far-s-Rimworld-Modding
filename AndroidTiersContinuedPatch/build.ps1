@@ -40,6 +40,7 @@ $atcDll = "C:\Program Files (x86)\Steam\steamapps\workshop\content\294100\371101
 
 # Compiler references
 $refs = @(
+    "$atcDll",
     "$managedDir\Assembly-CSharp.dll",
     "$managedDir\UnityEngine.dll",
     "$managedDir\UnityEngine.CoreModule.dll",

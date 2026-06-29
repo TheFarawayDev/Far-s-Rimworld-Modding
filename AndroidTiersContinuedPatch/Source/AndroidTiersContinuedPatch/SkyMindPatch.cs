@@ -9,9 +9,10 @@ namespace AndroidTiersContinuedPatch
     {
         public static void Postfix(CompSkyMind __instance, ref bool __result)
         {
-            if (!__result && __instance.parent is Pawn pawn)
+            if (!__result)
             {
-                if (pawn.VX0ChipPresent())
+                Pawn pawn = __instance.parent as Pawn;
+                if (pawn != null && pawn.VX0ChipPresent())
                 {
                     __result = true;
                 }
