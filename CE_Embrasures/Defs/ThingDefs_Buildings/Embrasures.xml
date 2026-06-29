@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Defs>
 	<ThingDef ParentName="Wall" Name="EmbrasureBase">
-		<defName>CE_Embrasure</defName>
+		<defName>Combat Extended Embrasure</defName>
 		<label>embrasure</label>
 		<thingClass>Building</thingClass>
 		<category>Building</category>
