@@ -17,5 +17,5 @@
   <loadAfter>
     <li>thefarawaydev.farutils</li>
   </loadAfter>
-  <modVersion>1.0.0</modVersion>
+  <modVersion>1.1.0</modVersion>
 </ModMetaData>
