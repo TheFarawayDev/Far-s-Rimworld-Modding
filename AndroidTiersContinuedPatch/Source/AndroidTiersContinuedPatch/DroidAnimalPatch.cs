@@ -127,44 +127,33 @@ namespace AndroidTiersContinuedPatch
 
                     if (def.comps != null)
                     {
-                        foreach (var comp in def.comps)
+                        bool isCow = def.defName.ToLower().Contains("cow") || (def.label != null && def.label.ToLower().Contains("solution"));
+
+                        if (!isCow)
                         {
-                            var type = comp.GetType();
-                            if (type.Name.Contains("Milkable") || type.Name.Contains("Shearable") || type.Name.Contains("EggLayer") || type.Name.Contains("Gatherable"))
+                            foreach (var comp in def.comps)
                             {
-                                foreach (var fieldInfo in type.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.FlattenHierarchy))
+                                var type = comp.GetType();
+                                if (type.Name.Contains("Milkable") || type.Name.Contains("Shearable") || type.Name.Contains("EggLayer") || type.Name.Contains("Gatherable"))
                                 {
-                                    string fName = fieldInfo.Name.ToLower();
-                                    if (fName.Contains("days") || fName.Contains("ticks") || fName.Contains("interval"))
+                                    foreach (var fieldInfo in type.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.FlattenHierarchy))
                                     {
-                                        object objVal = fieldInfo.GetValue(comp);
-                                        if (objVal is float)
+                                        string fName = fieldInfo.Name.ToLower();
+                                        if (fName.Contains("days") || fName.Contains("ticks") || fName.Contains("interval"))
                                         {
-                                            float val = (float)objVal;
-                                            fieldInfo.SetValue(comp, val * 0.5f);
-                                            Log.Message(string.Format("[AndroidTiersContinuedPatch] Halved interval float field {0} on {1}", fName, def.defName));
-                                        }
-                                        else if (objVal is int)
-                                        {
-                                            int val = (int)objVal;
-                                            fieldInfo.SetValue(comp, (int)(val * 0.5f));
-                                            Log.Message(string.Format("[AndroidTiersContinuedPatch] Halved interval int field {0} on {1}", fName, def.defName));
-                                        }
-                                    }
-                                    else if (fName.Contains("amount") || fName.Contains("count") || fName == "egglaycount")
-                                    {
-                                        object objVal = fieldInfo.GetValue(comp);
-                                        if (objVal is float)
-                                        {
-                                            float val = (float)objVal;
-                                            fieldInfo.SetValue(comp, val * 2f);
-                                            Log.Message(string.Format("[AndroidTiersContinuedPatch] Doubled amount float field {0} on {1}", fName, def.defName));
-                                        }
-                                        else if (objVal is int)
-                                        {
-                                            int val = (int)objVal;
-                                            fieldInfo.SetValue(comp, (int)(val * 2));
-                                            Log.Message(string.Format("[AndroidTiersContinuedPatch] Doubled amount int field {0} on {1}", fName, def.defName));
+                                            object objVal = fieldInfo.GetValue(comp);
+                                            if (objVal is float)
+                                            {
+                                                float val = (float)objVal;
+                                                fieldInfo.SetValue(comp, val / 1.5f);
+                                                Log.Message(string.Format("[AndroidTiersContinuedPatch] Increased production speed float field {0} on {1} by 1.5x", fName, def.defName));
+                                            }
+                                            else if (objVal is int)
+                                            {
+                                                int val = (int)objVal;
+                                                fieldInfo.SetValue(comp, (int)(val / 1.5f));
+                                                Log.Message(string.Format("[AndroidTiersContinuedPatch] Increased production speed int field {0} on {1} by 1.5x", fName, def.defName));
+                                            }
                                         }
                                     }
                                 }

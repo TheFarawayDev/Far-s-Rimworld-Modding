@@ -155,7 +155,7 @@ namespace CallForATrader
             // Cooldown
             int cooldownHours = settings.cooldownTicks / 2500;
             listingStandard.Label("Call Cooldown: " + cooldownHours + " Hours (" + settings.cooldownTicks + " Ticks)");
-            float cooldownSlider = listingStandard.Slider(cooldownHours, 0f, 120f);
+            float cooldownSlider = listingStandard.Slider(cooldownHours, 1f, 720f);
             settings.cooldownTicks = (int)cooldownSlider * 2500;
 
             // Letter Timeout

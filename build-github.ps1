@@ -34,6 +34,17 @@ $mods = @(
         Name          = "SmartPriorities"
         NeedsHarmony  = $true
         NeedsFarUtils = $true
+    },
+    @{
+        Name          = "QuarryCoRemake"
+        NeedsHarmony  = $false
+        NeedsFarUtils = $false
+    },
+    @{
+        Name          = "CE_Embrasures"
+        NeedsHarmony  = $false
+        NeedsFarUtils = $false
+        IsXmlOnly     = $true
     }
 )
 
@@ -50,6 +61,11 @@ foreach ($mod in $mods) {
     
     Write-Host "----------------------------------------" -ForegroundColor Gray
     Write-Host "Preparing build for mod: $modName" -ForegroundColor Yellow
+
+    if ($mod.IsXmlOnly) {
+        Write-Host "Mod $modName is XML/Assets only. Skipping C# compilation." -ForegroundColor Green
+        continue
+    }
 
     # Define .csproj content
     $csprojContent = @"
