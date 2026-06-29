@@ -29,6 +29,7 @@ $mods = @(
         Name          = "AndroidTiersContinuedPatch"
         NeedsHarmony  = $true
         NeedsFarUtils = $false
+        NeedsAndroidTiers = $true
     },
     @{
         Name          = "SmartPriorities"
@@ -194,6 +195,18 @@ foreach ($mod in $mods) {
     <Reference Include="FarUtils">
       <HintPath>..\FarUtils\1.6\Assemblies\FarUtils.dll</HintPath>
       <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+"@
+    }
+
+    if ($mod.NeedsAndroidTiers) {
+        $csprojContent += @"
+
+  <ItemGroup>
+    <Reference Include="AndroidTiersContinued">
+      <HintPath>lib\AndroidTiersContinued.dll</HintPath>
+      <Private>false</Private>
     </Reference>
   </ItemGroup>
 "@

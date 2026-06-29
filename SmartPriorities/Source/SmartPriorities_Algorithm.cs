@@ -45,25 +45,64 @@ namespace SmartPriorities
             // If they are never Rank 1 or 2 in ANY job, they are a dedicated laborer
             bool isDedicatedLaborer = (bestRankAchieved > 2);
 
-            // 2. Find Learning Job
-            WorkTypeDef learningJob = null;
-            List<WorkTypeDef> potentialLearningJobs = new List<WorkTypeDef>();
-            foreach (WorkTypeDef wt in sortedWorkTypes)
+            // 2. Find Learning Jobs
+            List<WorkTypeDef> learningJobs = new List<WorkTypeDef>();
+            var gameComp = Current.Game.GetComponent<SmartPriorities_GameComponent>();
+            
+            string savedJobs = null;
+            if (gameComp != null && gameComp.assignedLearningJobs.TryGetValue(pawn, out savedJobs))
             {
-                if (pawn.WorkTypeIsDisabled(wt) || wt.relevantSkills == null || wt.relevantSkills.Count == 0) continue;
-                
-                Passion passion;
-                int skill = GetEffectiveSkill(pawn, wt, out passion);
-                if (passion != Passion.None && skill < 8)
+                string[] defNames = savedJobs.Split(',');
+                foreach (string defName in defNames)
                 {
-                    potentialLearningJobs.Add(wt);
+                    WorkTypeDef def = DefDatabase<WorkTypeDef>.GetNamedSilentFail(defName);
+                    if (def != null) learningJobs.Add(def);
                 }
             }
-
-            if (potentialLearningJobs.Count > 0)
+            else
             {
-                int index = Math.Abs(pawn.thingIDNumber) % potentialLearningJobs.Count;
-                learningJob = potentialLearningJobs[index];
+                List<WorkTypeDef> potentialLearningJobs = new List<WorkTypeDef>();
+                foreach (WorkTypeDef wt in sortedWorkTypes)
+                {
+                    if (pawn.WorkTypeIsDisabled(wt) || wt.relevantSkills == null || wt.relevantSkills.Count == 0) continue;
+                    
+                    Passion passion;
+                    int skill = GetEffectiveSkill(pawn, wt, out passion);
+                    
+                    // Focus on tasks they are bad at (skill < 4)
+                    if (skill < 4)
+                    {
+                        // Weight passions heavily if they have any
+                        if (passion != Passion.None)
+                        {
+                            potentialLearningJobs.Add(wt);
+                            potentialLearningJobs.Add(wt);
+                            potentialLearningJobs.Add(wt);
+                        }
+                        else
+                        {
+                            potentialLearningJobs.Add(wt);
+                        }
+                    }
+                }
+
+                // Randomly pick up to 3 distinct jobs
+                potentialLearningJobs.Shuffle();
+                foreach (WorkTypeDef wt in potentialLearningJobs)
+                {
+                    if (!learningJobs.Contains(wt))
+                    {
+                        learningJobs.Add(wt);
+                        if (learningJobs.Count >= 3) break;
+                    }
+                }
+                
+                if (gameComp != null && learningJobs.Count > 0)
+                {
+                    List<string> defNames = new List<string>();
+                    foreach (var wt in learningJobs) defNames.Add(wt.defName);
+                    gameComp.assignedLearningJobs[pawn] = string.Join(",", defNames.ToArray());
+                }
             }
 
             // 3. Dynamic Mechanoid Offloading Logic (Supports all mods)
@@ -113,7 +152,7 @@ namespace SmartPriorities
                 int priority = CalculateIdealPriority(pawn, workType, isDedicatedLaborer, pawnRanks, offloadLevels, out rank);
 
                 // Apply Learning Job boost
-                if (workType == learningJob && priority == 0)
+                if (learningJobs.Contains(workType) && priority == 0)
                 {
                     priority = 3; 
                 }

@@ -27,7 +27,7 @@
 			<WorkToBuild>150</WorkToBuild>
 		</statBases>
 		<costStuffCount>5</costStuffCount>
-		<fillPercent>0.7</fillPercent>
+		<fillPercent>0.99</fillPercent>
 		<disableImpassableShotOverConfigError>true</disableImpassableShotOverConfigError>
 		<building>
 			<blueprintGraphicData>
