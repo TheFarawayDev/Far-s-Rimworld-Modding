@@ -101,7 +101,7 @@ foreach ($mod in $mods) {
 
   <ItemGroup>
     <Reference Include="FarUtils">
-      <HintPath>..\FarUtils\1.6\Assemblies\FarUtils.dll</HintPath>
+      <HintPath>../FarUtils/1.6/Assemblies/FarUtils.dll</HintPath>
       <Private>true</Private>
     </Reference>
   </ItemGroup>
@@ -113,7 +113,7 @@ foreach ($mod in $mods) {
 
   <ItemGroup>
     <Reference Include="AndroidTiersContinued">
-      <HintPath>lib\AndroidTiersContinued.dll</HintPath>
+      <HintPath>lib/AndroidTiersContinued.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
