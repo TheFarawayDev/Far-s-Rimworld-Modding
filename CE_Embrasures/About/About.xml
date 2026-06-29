@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
   <name>CE Embrasures Standalone</name>
   <author>Combat Extended Team</author>
@@ -9,4 +9,5 @@
     <li>1.6</li>
   </supportedVersions>
   <description>Standalone embrasures extracted directly from the Combat Extended mod. Includes only the embrasures and their textures, with no other CE features or dependencies.</description>
+  <modVersion>1.1.0</modVersion>
 </ModMetaData>
