@@ -501,6 +501,25 @@ namespace CallForATrader
                 return null;
             }
 
+            // AUTOMATIC's Trader Ships Compatibility
+            if (ModLister.GetActiveModWithIdentifier("Automatic.TraderShips") != null)
+            {
+                IncidentDef traderShipsDef = DefDatabase<IncidentDef>.GetNamedSilentFail("TraderShipsArrival") 
+                    ?? DefDatabase<IncidentDef>.GetNamedSilentFail("TraderShipCrash");
+                
+                if (traderShipsDef != null)
+                {
+                    IncidentParms parms = StorytellerUtility.DefaultParmsNow(traderShipsDef.category, map);
+                    parms.traderKind = trader;
+                    if (traderShipsDef.Worker.TryExecute(parms))
+                    {
+                        // Successfully spawned a landed trader ship, so return null 
+                        // as there is no orbital TradeShip to track.
+                        return null;
+                    }
+                }
+            }
+
             TradeShip tradeShip = new TradeShip(trader, null);
             map.passingShipManager.AddShip(tradeShip);
             tradeShip.GenerateThings();
