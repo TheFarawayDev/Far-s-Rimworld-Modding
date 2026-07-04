@@ -6,34 +6,30 @@ $ErrorActionPreference = "Stop"
 # Define the mods, their compilation order, and their dependencies
 $mods = @(
     @{
-        Name          = "AreaInclusionExclusion"
-        NeedsHarmony  = $true
+        Name         = "AreaInclusionExclusion"
+        NeedsHarmony = $true
     },
     @{
-        Name          = "CallForATrader"
-        NeedsHarmony  = $true
+        Name         = "CallForATrader"
+        NeedsHarmony = $true
     },
     @{
-        Name          = "TheGarbageCollector"
-        NeedsHarmony  = $true
+        Name         = "TheGarbageCollector"
+        NeedsHarmony = $true
     },
     @{
-        Name          = "AndroidTiersContinuedPatch"
-        NeedsHarmony  = $true
+        Name              = "AndroidTiersContinuedPatch"
+        NeedsHarmony      = $true
         NeedsAndroidTiers = $true
     },
     @{
-        Name          = "SmartPriorities"
-        NeedsHarmony  = $true
+        Name         = "QuarryCoRemake"
+        NeedsHarmony = $false
     },
     @{
-        Name          = "QuarryCoRemake"
-        NeedsHarmony  = $false
-    },
-    @{
-        Name          = "CE_Embrasures"
-        NeedsHarmony  = $false
-        IsXmlOnly     = $true
+        Name         = "CE_Embrasures"
+        NeedsHarmony = $false
+        IsXmlOnly    = $true
     }
 )
 
@@ -153,4 +149,4 @@ foreach ($mod in $mods) {
 }
 
 Write-Host "----------------------------------------" -ForegroundColor Gray
-Write-Host "All mods compiled successfully!" -ForegroundColor Green
+Write-Host "All mods compiled successfully!" -ForegroundColor Green

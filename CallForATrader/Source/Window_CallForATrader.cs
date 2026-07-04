@@ -85,6 +85,7 @@ namespace CallForATrader
                 {
                     isCaravanSelected = false;
                     selectedTrader = null;
+                    scrollPositionTraders = Vector2.zero;
                 }
                 GUI.color = Color.white;
             }
@@ -98,6 +99,7 @@ namespace CallForATrader
             {
                 isCaravanSelected = true;
                 selectedTrader = null;
+                scrollPositionTraders = Vector2.zero;
             }
             GUI.color = Color.white;
 
@@ -110,8 +112,11 @@ namespace CallForATrader
                 .OrderBy(t => t.label)
                 .ToList();
 
-            Rect viewRect = new Rect(0, 0, leftPanel.width - 16f, traders.Count * 30f);
-            Widgets.BeginScrollView(leftPanel.ContractedBy(4f), ref scrollPositionTraders, viewRect);
+            Rect outRect = leftPanel.ContractedBy(4f);
+            float viewHeight = traders.Count * 30f;
+            float viewWidth = viewHeight > outRect.height ? outRect.width - 16f : outRect.width;
+            Rect viewRect = new Rect(0, 0, viewWidth, viewHeight);
+            Widgets.BeginScrollView(outRect, ref scrollPositionTraders, viewRect);
             for (int i = 0; i < traders.Count; i++)
             {
                 TraderKindDef t = traders[i];
