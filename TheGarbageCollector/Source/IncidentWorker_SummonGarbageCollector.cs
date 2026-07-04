@@ -39,7 +39,7 @@ namespace TheGarbageCollector
             currentSummonMode = mode;
             currentSummonPullFromStorage = pullFromStorage;
 
-            FarUtils.AnimalSummoner.SpawnCreatureWorker(map, pawnKind, dutyDef, arrivalMessage);
+            GarbageCollectorSummoner.SpawnCreatureWorker(map, pawnKind, dutyDef, arrivalMessage);
 
             Pawn spawnedPawn = null;
             foreach (Pawn p in map.mapPawns.AllPawns)

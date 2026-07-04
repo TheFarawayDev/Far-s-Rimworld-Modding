@@ -12,7 +12,7 @@ if (-not (Test-Path $assembliesDir)) {
     New-Item -ItemType Directory -Path $assembliesDir -Force | Out-Null
 }
 
-# 3. Locate Harmony DLL & FarUtils DLL
+# 3. Locate Harmony DLL
 $harmonyTarget = "$assembliesDir\0Harmony.dll"
 if (-not (Test-Path $harmonyTarget)) {
     $gcHarmony = "c:\Users\meast\Downloads\Development\GAMES\rimworldModding\TheGarbageCollector\1.6\Assemblies\0Harmony.dll"
@@ -20,16 +20,6 @@ if (-not (Test-Path $harmonyTarget)) {
         Copy-Item $gcHarmony $harmonyTarget -Force
         Write-Host "Copied Harmony DLL." -ForegroundColor Green
     }
-}
-
-$farUtilsTarget = "$assembliesDir\FarUtils.dll"
-$farUtilsSource = "c:\Users\meast\Downloads\Development\GAMES\rimworldModding\FarUtils\1.6\Assemblies\FarUtils.dll"
-if (Test-Path $farUtilsSource) {
-    Copy-Item $farUtilsSource $farUtilsTarget -Force
-    Write-Host "Copied FarUtils DLL from FarUtils framework mod." -ForegroundColor Green
-} else {
-    Write-Error "FarUtils.dll not found in FarUtils framework mod. Please build FarUtils first."
-    return
 }
 
 # 4. Compile AreaInclusionExclusion.dll
@@ -53,7 +43,6 @@ $refs = @(
     "$managedDir\netstandard.dll",
     "$managedDir\Unity.Mathematics.dll",
     "$assembliesDir\0Harmony.dll",
-    "$assembliesDir\FarUtils.dll",
     "System.dll",
     "System.Core.dll",
     "System.Xml.dll"
@@ -95,7 +84,6 @@ foreach ($dir in @("About", "Defs", "Patches", "Textures", "Languages")) {
 
 # Copy assemblies
 Copy-Item "$assembliesDir\AreaInclusionExclusion.dll" "$deployDir\1.6\Assemblies\" -Force
-Copy-Item "$assembliesDir\FarUtils.dll" "$deployDir\1.6\Assemblies\" -Force
 Copy-Item "$assembliesDir\0Harmony.dll" "$deployDir\1.6\Assemblies\" -Force
 
 Write-Host "Area Inclusion and Exclusion mod deployed successfully!" -ForegroundColor Green

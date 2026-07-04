@@ -104,9 +104,9 @@ namespace CallForATrader
     public class CallForATraderSettings : ModSettings
     {
         public int economyCost = 150;
-        public int priorityCost = 500;
         public int negotiateCost = 300;
         public int caravanCost = 200;
+        public int priorityCost = 500;
         public int cooldownTicks = 60000; // 24 hours
         public int letterTimeoutTicks = 10000; // 4 hours
 
@@ -114,9 +114,9 @@ namespace CallForATrader
         {
             base.ExposeData();
             Scribe_Values.Look(ref economyCost, "economyCost", 150);
-            Scribe_Values.Look(ref priorityCost, "priorityCost", 500);
             Scribe_Values.Look(ref negotiateCost, "negotiateCost", 300);
             Scribe_Values.Look(ref caravanCost, "caravanCost", 200);
+            Scribe_Values.Look(ref priorityCost, "priorityCost", 500);
             Scribe_Values.Look(ref cooldownTicks, "cooldownTicks", 60000);
             Scribe_Values.Look(ref letterTimeoutTicks, "letterTimeoutTicks", 10000);
         }
@@ -140,13 +140,13 @@ namespace CallForATrader
             listingStandard.Label("Economy Cargo Route Cost: " + settings.economyCost + " Silver");
             settings.economyCost = (int)listingStandard.Slider(settings.economyCost, 0f, 1000f);
 
-            // Priority Cost
-            listingStandard.Label("Priority Hyper-Jump Cost: " + settings.priorityCost + " Silver");
-            settings.priorityCost = (int)listingStandard.Slider(settings.priorityCost, 0f, 2000f);
-
             // Negotiate Cost
             listingStandard.Label("Bargain Negotiation Base Cost: " + settings.negotiateCost + " Silver");
             settings.negotiateCost = (int)listingStandard.Slider(settings.negotiateCost, 0f, 1500f);
+
+            // Priority Cost
+            listingStandard.Label("Priority Hyper-Jump Cost: " + settings.priorityCost + " Silver");
+            settings.priorityCost = (int)listingStandard.Slider(settings.priorityCost, 0f, 2000f);
 
             // Caravan Cost
             listingStandard.Label("On-Ground Caravan Cost: " + settings.caravanCost + " Silver");
@@ -753,9 +753,9 @@ namespace CallForATrader
     }
 
     // ==========================================
-    // 7. DYNAMIC ALERT (USES FARUTILS BASE CLASS)
+    // 7. DYNAMIC ALERT
     // ==========================================
-    public class Alert_OrbitalTraderInOrbit : FarUtils.Alert_ConditionalUtility
+    public class Alert_OrbitalTraderInOrbit : Alert
     {
         public Alert_OrbitalTraderInOrbit()
         {
@@ -764,14 +764,16 @@ namespace CallForATrader
             this.defaultPriority = AlertPriority.Medium;
         }
 
-        protected override int TargetThreshold
+        public override AlertReport GetReport()
         {
-            get { return 0; }
-        }
-
-        protected override int GetTargetCount(Map map)
-        {
-            return map.passingShipManager.passingShips.Count;
+            foreach (Map map in Find.Maps)
+            {
+                if (map.passingShipManager != null && map.passingShipManager.passingShips.Count > 0)
+                {
+                    return AlertReport.Active;
+                }
+            }
+            return AlertReport.Inactive;
         }
     }
 
@@ -817,7 +819,7 @@ namespace CallForATrader
 
         public void TryOpenComms(Pawn negotiator)
         {
-            Find.WindowStack.Add(new Dialog_NodeTree(CallForATraderDialogCreator.MakeTraderCallNode(negotiator.Map, console, negotiator), true, false, "Traders Hub"));
+            Find.WindowStack.Add(new Window_CallForATrader(negotiator.Map, console, negotiator, true));
         }
 
         public Faction GetFaction()
@@ -846,478 +848,34 @@ namespace CallForATrader
             return list;
         }
     }
-
-    public static class CallForATraderDialogCreator
+    [HarmonyPatch(typeof(Thing), "GetFloatMenuOptions")]
+    public static class Patch_Thing_GetFloatMenuOptions
     {
-        // 1. Root Node: Choice between Orbital Trade Ship and On-Ground Caravan
-        public static DiaNode MakeTraderCallNode(Map map, Building_CommsConsole console, Pawn negotiator)
+        public static IEnumerable<FloatMenuOption> Postfix(IEnumerable<FloatMenuOption> __result, Thing __instance, Pawn selPawn)
         {
-            DiaNode root = new DiaNode("You have connected to the Traders Hub. Would you like to request an Orbital Trade Ship or an On-Ground Caravan?");
-
-            DiaOption optOrbital = new DiaOption("Request an Orbital Trade Ship");
-            optOrbital.resolveTree = false;
-            optOrbital.action = delegate
+            if (__result != null)
             {
-                optOrbital.link = MakeOrbitalTraderSelectNode(map, console, negotiator);
-            };
-            root.options.Add(optOrbital);
+                foreach (var opt in __result) yield return opt;
+            }
 
-            DiaOption optCaravan = new DiaOption("Request an On-Ground Caravan");
-            optCaravan.resolveTree = false;
-            optCaravan.action = delegate
+            Building b = __instance as Building;
+            if (b != null)
             {
-                optCaravan.link = MakeCaravanTraderSelectNode(map, console, negotiator);
-            };
-            root.options.Add(optCaravan);
-
-            DiaOption cancel = new DiaOption("Disconnect");
-            cancel.resolveTree = true;
-            root.options.Add(cancel);
-
-            return root;
-        }
-
-        // 2. Orbital Trader Select Node
-        public static DiaNode MakeOrbitalTraderSelectNode(Map map, Building_CommsConsole console, Pawn negotiator, int page = 0)
-        {
-            DiaNode node = new DiaNode("Which orbital trade ship would you like to request to jump to this system?");
-
-            List<TraderKindDef> traders = new List<TraderKindDef>();
-            foreach (TraderKindDef def in DefDatabase<TraderKindDef>.AllDefs)
-            {
-                if (def.orbital && !def.label.NullOrEmpty())
+                if (b.def != null && b.def.defName != null && 
+                    (b.def.defName.Contains("MessengerTable") || b.def.defName.Contains("SignalFire")))
                 {
-                    traders.Add(def);
+                    if (selPawn.CanReach(b, Verse.AI.PathEndMode.Touch, Danger.Deadly))
+                    {
+                        Action action = delegate
+                        {
+                            Job job = JobMaker.MakeJob(JobDefOf.Goto, b);
+                            selPawn.jobs.TryTakeOrderedJob(job, JobTag.Misc);
+                            Find.WindowStack.Add(new Window_CallForATrader(selPawn.Map, b, selPawn, false));
+                        };
+                        yield return new FloatMenuOption("Call a Trader (Caravan only)", action, MenuOptionPriority.InitiateSocial);
+                    }
                 }
             }
-
-            traders.Sort((a, b) => a.label.CompareTo(b.label));
-
-            int optionsPerPage = 7;
-            int totalPages = (int)Math.Ceiling((double)traders.Count / optionsPerPage);
-            if (totalPages == 0) totalPages = 1;
-            
-            int startIndex = page * optionsPerPage;
-            int endIndex = Math.Min(startIndex + optionsPerPage, traders.Count);
-
-            for (int i = startIndex; i < endIndex; i++)
-            {
-                TraderKindDef def = traders[i];
-                DiaOption opt = new DiaOption(def.LabelCap.ToString());
-                opt.resolveTree = false;
-                opt.action = delegate
-                {
-                    opt.link = MakeOrbitalDispatchChannelNode(map, console, negotiator, def);
-                };
-                node.options.Add(opt);
-            }
-
-            if (page > 0)
-            {
-                DiaOption prev = new DiaOption("<< Previous Page");
-                prev.resolveTree = false;
-                prev.action = delegate
-                {
-                    prev.link = MakeOrbitalTraderSelectNode(map, console, negotiator, page - 1);
-                };
-                node.options.Add(prev);
-            }
-
-            if (page < totalPages - 1)
-            {
-                DiaOption next = new DiaOption("Next Page >>");
-                next.resolveTree = false;
-                next.action = delegate
-                {
-                    next.link = MakeOrbitalTraderSelectNode(map, console, negotiator, page + 1);
-                };
-                node.options.Add(next);
-            }
-
-            DiaOption back = new DiaOption("Go Back");
-            back.resolveTree = false;
-            back.action = delegate
-            {
-                back.link = MakeTraderCallNode(map, console, negotiator);
-            };
-            node.options.Add(back);
-
-            return node;
-        }
-
-        // 3. Caravan Trader Select Node
-        public static DiaNode MakeCaravanTraderSelectNode(Map map, Building_CommsConsole console, Pawn negotiator, int page = 0)
-        {
-            DiaNode node = new DiaNode("Which caravan trader would you like to request to visit this colony?");
-
-            List<TraderKindDef> traders = new List<TraderKindDef>();
-            foreach (TraderKindDef def in DefDatabase<TraderKindDef>.AllDefs)
-            {
-                if (!def.orbital && !def.label.NullOrEmpty())
-                {
-                    traders.Add(def);
-                }
-            }
-
-            traders.Sort((a, b) => a.label.CompareTo(b.label));
-
-            int optionsPerPage = 7;
-            int totalPages = (int)Math.Ceiling((double)traders.Count / optionsPerPage);
-            if (totalPages == 0) totalPages = 1;
-            
-            int startIndex = page * optionsPerPage;
-            int endIndex = Math.Min(startIndex + optionsPerPage, traders.Count);
-
-            for (int i = startIndex; i < endIndex; i++)
-            {
-                TraderKindDef def = traders[i];
-                DiaOption opt = new DiaOption(def.LabelCap.ToString());
-                opt.resolveTree = false;
-                opt.action = delegate
-                {
-                    opt.link = MakeCaravanDispatchChannelNode(map, console, negotiator, def);
-                };
-                node.options.Add(opt);
-            }
-
-            if (page > 0)
-            {
-                DiaOption prev = new DiaOption("<< Previous Page");
-                prev.resolveTree = false;
-                prev.action = delegate
-                {
-                    prev.link = MakeCaravanTraderSelectNode(map, console, negotiator, page - 1);
-                };
-                node.options.Add(prev);
-            }
-
-            if (page < totalPages - 1)
-            {
-                DiaOption next = new DiaOption("Next Page >>");
-                next.resolveTree = false;
-                next.action = delegate
-                {
-                    next.link = MakeCaravanTraderSelectNode(map, console, negotiator, page + 1);
-                };
-                node.options.Add(next);
-            }
-
-            DiaOption back = new DiaOption("Go Back");
-            back.resolveTree = false;
-            back.action = delegate
-            {
-                back.link = MakeTraderCallNode(map, console, negotiator);
-            };
-            node.options.Add(back);
-
-            return node;
-        }
-
-        // 4. Orbital Dispatch Channel Selection
-        public static DiaNode MakeOrbitalDispatchChannelNode(Map map, Building_CommsConsole console, Pawn negotiator, TraderKindDef trader)
-        {
-            int availableSilver = CallForATraderUtility.GetAvailableSilver(map);
-            var tracker = Find.World.GetComponent<CallForATraderTracker>();
-            int remainingTicks = 0;
-            bool onCooldown = tracker != null && tracker.IsOnCooldown(map, out remainingTicks);
-
-            int economyCost = CallForATraderMod.settings.economyCost;
-            int priorityCost = CallForATraderMod.settings.priorityCost;
-
-            int socialLevel = negotiator.skills.GetSkill(SkillDefOf.Social).Level;
-            float discountFactor = socialLevel / 20f;
-            int negotiatedCost = (int)(CallForATraderMod.settings.negotiateCost * (1f - (discountFactor * 0.5f)));
-
-            string cooldownStr = "";
-            if (onCooldown)
-            {
-                cooldownStr = "\n\n[WARNING] Comm channels are on cooldown. " + CallForATraderMapComponent.FormatTicksToTime(remainingTicks) + " remaining.";
-            }
-
-            string nodeText = string.Format(
-                "Select a dispatch channel for the requested orbital {0}.\n" +
-                "Colony Silver Available: {1}\n\n" +
-                "1. Economy Cargo Route\n" +
-                "   Cost: {2} silver | Delay: 1-10 days\n\n" +
-                "2. Priority Hyper-Jump\n" +
-                "   Cost: {3} silver | Delay: 2-6 hours\n\n" +
-                "3. Negotiate Broker Fee\n" +
-                "   Negotiator: {4} (Social: {5})\n" +
-                "   Base Cost: {6} silver | Est. Cost: {7} silver\n" +
-                "   Delay: 12-24 hours{8}",
-                trader.LabelCap.ToString(),
-                availableSilver,
-                economyCost,
-                priorityCost,
-                negotiator.LabelShort,
-                socialLevel,
-                CallForATraderMod.settings.negotiateCost,
-                negotiatedCost,
-                cooldownStr
-            );
-
-            DiaNode node = new DiaNode(nodeText);
-
-            // Channel 1: Economy Route
-            DiaOption optEconomy = new DiaOption("Economy Cargo Route");
-            if (onCooldown)
-            {
-                optEconomy.disabled = true;
-                optEconomy.disabledReason = "Cooldown: " + CallForATraderMapComponent.FormatTicksToTime(remainingTicks) + " left";
-            }
-            else if (availableSilver < economyCost)
-            {
-                optEconomy.disabled = true;
-                optEconomy.disabledReason = "Need " + economyCost + " silver";
-            }
-            else
-            {
-                optEconomy.resolveTree = true;
-                optEconomy.action = delegate
-                {
-                    CallForATraderUtility.DeductSilver(map, economyCost);
-                    int delayDays = Rand.RangeInclusive(1, 10);
-                    int delayTicks = delayDays * 60000;
-                    
-                    var comp = map.GetComponent<CallForATraderMapComponent>();
-                    if (comp != null)
-                    {
-                        comp.ScheduleArrival(trader, delayTicks, false);
-                    }
-                    if (tracker != null)
-                    {
-                        tracker.TriggerCooldown(map);
-                    }
-
-                    Find.LetterStack.ReceiveLetter(
-                        "Trade Ship Economy Request",
-                        "The request for a " + trader.label + " has been registered at the economy route rate. It will arrive in " + delayDays + " days. (Delay is randomized between 1-10 days).",
-                        LetterDefOf.PositiveEvent,
-                        new LookTargets(console)
-                    );
-                };
-            }
-            node.options.Add(optEconomy);
-
-            // Channel 2: Priority Jump
-            DiaOption optPriority = new DiaOption("Priority Hyper-Jump");
-            if (onCooldown)
-            {
-                optPriority.disabled = true;
-                optPriority.disabledReason = "Cooldown: " + CallForATraderMapComponent.FormatTicksToTime(remainingTicks) + " left";
-            }
-            else if (availableSilver < priorityCost)
-            {
-                optPriority.disabled = true;
-                optPriority.disabledReason = "Need " + priorityCost + " silver";
-            }
-            else
-            {
-                optPriority.resolveTree = true;
-                optPriority.action = delegate
-                {
-                    CallForATraderUtility.DeductSilver(map, priorityCost);
-                    int delayHours = Rand.RangeInclusive(2, 6);
-                    int delayTicks = delayHours * 2500;
-                    
-                    var comp = map.GetComponent<CallForATraderMapComponent>();
-                    if (comp != null)
-                    {
-                        comp.ScheduleArrival(trader, delayTicks, false);
-                    }
-                    if (tracker != null)
-                    {
-                        tracker.TriggerCooldown(map);
-                    }
-
-                    Find.LetterStack.ReceiveLetter(
-                        "Trade Ship Priority Request",
-                        "The request for a " + trader.label + " has been registered at the priority jump rate. It will arrive in " + delayHours + " hours. (Delay is randomized between 2-6 hours).",
-                        LetterDefOf.PositiveEvent,
-                        new LookTargets(console)
-                    );
-                };
-            }
-            node.options.Add(optPriority);
-
-            // Channel 3: Broker Negotiation
-            DiaOption optNegotiate = new DiaOption("Negotiate Broker Fee");
-            if (onCooldown)
-            {
-                optNegotiate.disabled = true;
-                optNegotiate.disabledReason = "Cooldown: " + CallForATraderMapComponent.FormatTicksToTime(remainingTicks) + " left";
-            }
-            else if (availableSilver < negotiatedCost)
-            {
-                optNegotiate.disabled = true;
-                optNegotiate.disabledReason = "Need " + negotiatedCost + " silver";
-            }
-            else
-            {
-                optNegotiate.resolveTree = false;
-                optNegotiate.action = delegate
-                {
-                    optNegotiate.link = MakeNegotiationResultNode(map, console, negotiator, trader, negotiatedCost);
-                };
-            }
-            node.options.Add(optNegotiate);
-
-            // Go back
-            DiaOption back = new DiaOption("Go Back");
-            back.resolveTree = false;
-            back.action = delegate
-            {
-                back.link = MakeOrbitalTraderSelectNode(map, console, negotiator);
-            };
-            node.options.Add(back);
-
-            return node;
-        }
-
-        // 5. Caravan Dispatch Channel Selection
-        public static DiaNode MakeCaravanDispatchChannelNode(Map map, Building_CommsConsole console, Pawn negotiator, TraderKindDef trader)
-        {
-            int availableSilver = CallForATraderUtility.GetAvailableSilver(map);
-            var tracker = Find.World.GetComponent<CallForATraderTracker>();
-            int remainingTicks = 0;
-            bool onCooldown = tracker != null && tracker.IsOnCooldown(map, out remainingTicks);
-
-            int caravanCost = CallForATraderMod.settings.caravanCost;
-
-            string cooldownStr = "";
-            if (onCooldown)
-            {
-                cooldownStr = "\n\n[WARNING] Comm channels are on cooldown. " + CallForATraderMapComponent.FormatTicksToTime(remainingTicks) + " remaining.";
-            }
-
-            string nodeText = string.Format(
-                "Select a dispatch channel for the requested {0} caravan.\n" +
-                "Colony Silver Available: {1}\n\n" +
-                "1. On-Ground Caravan Route\n" +
-                "   Cost: {2} silver | Delay: 1-3 days{3}",
-                trader.LabelCap.ToString(),
-                availableSilver,
-                caravanCost,
-                cooldownStr
-            );
-
-            DiaNode node = new DiaNode(nodeText);
-
-            // Channel 4: On Ground Caravan
-            DiaOption optCaravan = new DiaOption("On-Ground Caravan Route");
-            if (onCooldown)
-            {
-                optCaravan.disabled = true;
-                optCaravan.disabledReason = "Cooldown: " + CallForATraderMapComponent.FormatTicksToTime(remainingTicks) + " left";
-            }
-            else if (availableSilver < caravanCost)
-            {
-                optCaravan.disabled = true;
-                optCaravan.disabledReason = "Need " + caravanCost + " silver";
-            }
-            else
-            {
-                optCaravan.resolveTree = true;
-                optCaravan.action = delegate
-                {
-                    CallForATraderUtility.DeductSilver(map, caravanCost);
-                    int delayDays = Rand.RangeInclusive(1, 3);
-                    int delayTicks = delayDays * 60000;
-
-                    var comp = map.GetComponent<CallForATraderMapComponent>();
-                    if (comp != null)
-                    {
-                        comp.ScheduleArrival(trader, delayTicks, true);
-                    }
-                    if (tracker != null)
-                    {
-                        tracker.TriggerCooldown(map);
-                    }
-
-                    Find.LetterStack.ReceiveLetter(
-                        "Trade Caravan Request",
-                        "The request for a " + trader.label + " caravan has been registered. They will arrive on foot in " + delayDays + " days. (Delay is randomized between 1-3 days).",
-                        LetterDefOf.PositiveEvent,
-                        new LookTargets(console)
-                    );
-                };
-            }
-            node.options.Add(optCaravan);
-
-            // Go back
-            DiaOption back = new DiaOption("Go Back");
-            back.resolveTree = false;
-            back.action = delegate
-            {
-                back.link = MakeCaravanTraderSelectNode(map, console, negotiator);
-            };
-            node.options.Add(back);
-
-            return node;
-        }
-
-        // 6. Negotiation Result Node
-        public static DiaNode MakeNegotiationResultNode(Map map, Building_CommsConsole console, Pawn negotiator, TraderKindDef trader, int cost)
-        {
-            float roll = Rand.Range(-0.2f, 0.1f);
-            int finalCost = Math.Max(50, (int)(cost * (1f + roll)));
-            
-            int delayHours = Rand.RangeInclusive(12, 24);
-            int delayTicks = delayHours * 2500;
-
-            string text = "";
-            bool success = roll <= 0f;
-            if (success)
-            {
-                text = negotiator.LabelShort + " successfully bargained with the orbital brokers! They have agreed to schedule pathing for a reduced fee of " + finalCost + " silver. The ship will arrive in " + delayHours + " hours.";
-            }
-            else
-            {
-                text = "The brokers were stubborn and refused the discount, demanding a higher pathing fee of " + finalCost + " silver instead. The ship will arrive in " + delayHours + " hours.";
-            }
-
-            DiaNode resultNode = new DiaNode(text);
-
-            DiaOption optConfirm = new DiaOption("Pay and Confirm (" + finalCost + " silver)");
-            int availableSilver = CallForATraderUtility.GetAvailableSilver(map);
-            if (availableSilver < finalCost)
-            {
-                optConfirm.disabled = true;
-                optConfirm.disabledReason = "Need " + finalCost + " silver (have " + availableSilver + ")";
-            }
-            else
-            {
-                optConfirm.resolveTree = true;
-                optConfirm.action = delegate
-                {
-                    CallForATraderUtility.DeductSilver(map, finalCost);
-                    
-                    var comp = map.GetComponent<CallForATraderMapComponent>();
-                    if (comp != null)
-                    {
-                        comp.ScheduleArrival(trader, delayTicks, false);
-                    }
-                    var tracker = Find.World.GetComponent<CallForATraderTracker>();
-                    if (tracker != null)
-                    {
-                        tracker.TriggerCooldown(map);
-                    }
-
-                    Find.LetterStack.ReceiveLetter(
-                        "Trade Ship Negotiated Request",
-                        "The request for a " + trader.label + " has been bargained by " + negotiator.LabelShort + " for " + finalCost + " silver. It will arrive in " + delayHours + " hours.",
-                        LetterDefOf.PositiveEvent,
-                        new LookTargets(console)
-                    );
-                };
-            }
-            resultNode.options.Add(optConfirm);
-
-            DiaOption optCancel = new DiaOption("Cancel Call");
-            optCancel.resolveTree = true;
-            resultNode.options.Add(optCancel);
-
-            return resultNode;
         }
     }
 }

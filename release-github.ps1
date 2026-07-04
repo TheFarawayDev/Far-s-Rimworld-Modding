@@ -6,45 +6,33 @@ $ErrorActionPreference = "Stop"
 # Define the mods, their compilation order, and their dependencies
 $mods = @(
     @{
-        Name          = "FarUtils"
-        NeedsHarmony  = $true
-        NeedsFarUtils = $false
-    },
-    @{
         Name          = "AreaInclusionExclusion"
         NeedsHarmony  = $true
-        NeedsFarUtils = $true
     },
     @{
         Name          = "CallForATrader"
         NeedsHarmony  = $true
-        NeedsFarUtils = $true
     },
     @{
         Name          = "TheGarbageCollector"
         NeedsHarmony  = $true
-        NeedsFarUtils = $true
     },
     @{
         Name          = "AndroidTiersContinuedPatch"
         NeedsHarmony  = $true
-        NeedsFarUtils = $false
         NeedsAndroidTiers = $true
     },
     @{
         Name          = "SmartPriorities"
         NeedsHarmony  = $true
-        NeedsFarUtils = $true
     },
     @{
         Name          = "QuarryCoRemake"
         NeedsHarmony  = $false
-        NeedsFarUtils = $false
     },
     @{
         Name          = "CE_Embrasures"
         NeedsHarmony  = $false
-        NeedsFarUtils = $false
         IsXmlOnly     = $true
     }
 )
@@ -188,17 +176,6 @@ foreach ($mod in $mods) {
 "@
     }
 
-    if ($mod.NeedsFarUtils) {
-        $csprojContent += @"
-
-  <ItemGroup>
-    <Reference Include="FarUtils">
-      <HintPath>../FarUtils/1.6/Assemblies/FarUtils.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-  </ItemGroup>
-"@
-    }
 
     if ($mod.NeedsAndroidTiers) {
         $csprojContent += @"

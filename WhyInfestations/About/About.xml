@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <name>Why Infestations?</name>
+  <author>TheFarawayDev</author>
+  <packageId>thefarawaydev.whyinfestations</packageId>
+  <supportedVersions>
+    <li>1.4</li>
+    <li>1.5</li>
+    <li>1.6</li>
+  </supportedVersions>
+  <description>Stops random infestations from occurring in bases that are under mountains by setting the Infestation incident chance to 0.</description>
+</ModMetaData>

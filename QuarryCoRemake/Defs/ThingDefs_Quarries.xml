@@ -87,7 +87,6 @@
       <drawSize>(7,7)</drawSize>
     </graphicData>
     <size>(7,7)</size>
-    <holdsRoof>true</holdsRoof>
     <costList>
       <WoodLog>150</WoodLog>
       <Steel>60</Steel>
@@ -112,7 +111,6 @@
       <drawSize>(9,9)</drawSize>
     </graphicData>
     <size>(9,9)</size>
-    <holdsRoof>true</holdsRoof>
     <costList>
       <WoodLog>250</WoodLog>
       <Steel>120</Steel>
@@ -141,7 +139,6 @@
       <drawSize>(11,11)</drawSize>
     </graphicData>
     <size>(11,11)</size>
-    <holdsRoof>true</holdsRoof>
     <costList>
       <WoodLog>400</WoodLog>
       <Steel>250</Steel>
@@ -170,7 +167,6 @@
       <drawSize>(13,13)</drawSize>
     </graphicData>
     <size>(13,13)</size>
-    <holdsRoof>true</holdsRoof>
     <costList>
       <WoodLog>600</WoodLog>
       <Steel>400</Steel>
@@ -199,7 +195,6 @@
       <drawSize>(15,15)</drawSize>
     </graphicData>
     <size>(15,15)</size>
-    <holdsRoof>true</holdsRoof>
     <costList>
       <WoodLog>900</WoodLog>
       <Steel>600</Steel>

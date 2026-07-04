@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
   <name>Area Inclusion and Exclusion</name>
   <author>TheFarawayDev, gguake</author>
@@ -7,15 +7,5 @@
     <li>1.6</li>
   </supportedVersions>
   <description>Allows assigning multiple allowed areas (left-click) and excluding specific areas (right-click) for colonists and animals. Revamped for RimWorld 1.6.</description>
-  <modDependencies>
-    <li>
-      <packageId>thefarawaydev.farutils</packageId>
-      <displayName>Far-utils Framework</displayName>
-      <downloadUrl>https://github.com/thefarawaydev/farutils</downloadUrl>
-    </li>
-  </modDependencies>
-  <loadAfter>
-    <li>thefarawaydev.farutils</li>
-  </loadAfter>
   <modVersion>1.0.0</modVersion>
 </ModMetaData>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <name>Modified Work Needed</name>
+  <author>TheFarawayDev</author>
+  <packageId>thefarawaydev.modifiedworkneeded</packageId>
+  <supportedVersions>
+    <li>1.4</li>
+    <li>1.5</li>
+    <li>1.6</li>
+  </supportedVersions>
+  <description>Modifies work on all craftables (including androids, weapons, etc) based on a customizable multiplier.</description>
+</ModMetaData>

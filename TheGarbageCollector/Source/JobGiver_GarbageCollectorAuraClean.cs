@@ -26,7 +26,7 @@ namespace TheGarbageCollector
 
             LocalTargetInfo target = LocalTargetInfo.Invalid;
 
-            if (mode == GarbageFilterMode.Pollution)
+            if (mode == GarbageFilterMode.Pollution || mode == GarbageFilterMode.Premium)
             {
                 Thing wastepack = FindClosestGarbage(pawn, mode, pullFromStorage);
                 if (wastepack != null)
@@ -94,38 +94,24 @@ namespace TheGarbageCollector
             Map map = pawn.Map;
             if (map == null || map.pollutionGrid == null || !ModsConfig.BiotechActive) return IntVec3.Invalid;
 
-            Queue<IntVec3> queue = new Queue<IntVec3>();
-            HashSet<IntVec3> visited = new HashSet<IntVec3>();
+            IntVec3 closest = IntVec3.Invalid;
+            float minDistance = float.MaxValue;
+            IntVec3 pos = pawn.Position;
 
-            queue.Enqueue(pawn.Position);
-            visited.Add(pawn.Position);
-
-            int cellsProcessed = 0;
-            while (queue.Count > 0 && cellsProcessed < 10000)
+            foreach (IntVec3 cell in map.AllCells)
             {
-                IntVec3 current = queue.Dequeue();
-                cellsProcessed++;
-
-                if (map.pollutionGrid.IsPolluted(current))
+                if (map.pollutionGrid.IsPolluted(cell))
                 {
-                    if (pawn.CanReach(current, PathEndMode.Touch, Danger.Deadly))
+                    float dist = pos.DistanceToSquared(cell);
+                    if (dist < minDistance && pawn.CanReach(cell, PathEndMode.Touch, Danger.Deadly))
                     {
-                        return current;
-                    }
-                }
-
-                for (int i = 0; i < 4; i++)
-                {
-                    IntVec3 neighbor = current + GenAdj.CardinalDirections[i];
-                    if (neighbor.InBounds(map) && !visited.Contains(neighbor) && neighbor.Walkable(map))
-                    {
-                        visited.Add(neighbor);
-                        queue.Enqueue(neighbor);
+                        minDistance = dist;
+                        closest = cell;
                     }
                 }
             }
 
-            return IntVec3.Invalid;
+            return closest;
         }
 
         private Thing FindClosestGarbage(Pawn pawn, GarbageFilterMode mode, bool pullFromStorage)

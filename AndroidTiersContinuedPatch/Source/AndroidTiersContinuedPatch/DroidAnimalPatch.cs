@@ -83,6 +83,10 @@ namespace AndroidTiersContinuedPatch
     [StaticConstructorOnStartup]
     public static class AnimalDietPatch
     {
+        public static Dictionary<ThingDef, float> originalHungerRates = new Dictionary<ThingDef, float>();
+        // Map from Comp properties -> FieldName -> Original value (float)
+        public static Dictionary<object, Dictionary<string, float>> originalProductionIntervals = new Dictionary<object, Dictionary<string, float>>();
+
         static AnimalDietPatch()
         {
             var harmony = new Harmony("AndroidTiersContinuedPatch.EnergyDrain");
@@ -122,8 +126,8 @@ namespace AndroidTiersContinuedPatch
                     def.race.foodType &= ~FoodTypeFlags.Processed;
                     def.race.foodType &= ~FoodTypeFlags.Liquor;
                     
-                    // Natively makes the 'battery' (food) last 3x longer without relying on Harmony hooks!
-                    def.race.baseHungerRate *= 0.333f;
+                    // Cache original baseHungerRate
+                    originalHungerRates[def] = def.race.baseHungerRate;
 
                     if (def.comps != null)
                     {
@@ -136,6 +140,11 @@ namespace AndroidTiersContinuedPatch
                                 var type = comp.GetType();
                                 if (type.Name.Contains("Milkable") || type.Name.Contains("Shearable") || type.Name.Contains("EggLayer") || type.Name.Contains("Gatherable"))
                                 {
+                                    if (!originalProductionIntervals.ContainsKey(comp))
+                                    {
+                                        originalProductionIntervals[comp] = new Dictionary<string, float>();
+                                    }
+
                                     foreach (var fieldInfo in type.GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.FlattenHierarchy))
                                     {
                                         string fName = fieldInfo.Name.ToLower();
@@ -144,20 +153,65 @@ namespace AndroidTiersContinuedPatch
                                             object objVal = fieldInfo.GetValue(comp);
                                             if (objVal is float)
                                             {
-                                                float val = (float)objVal;
-                                                fieldInfo.SetValue(comp, val / 1.5f);
-                                                Log.Message(string.Format("[AndroidTiersContinuedPatch] Increased production speed float field {0} on {1} by 1.5x", fName, def.defName));
+                                                float fVal = (float)objVal;
+                                                originalProductionIntervals[comp][fieldInfo.Name] = fVal;
                                             }
                                             else if (objVal is int)
                                             {
-                                                int val = (int)objVal;
-                                                fieldInfo.SetValue(comp, (int)(val / 1.5f));
-                                                Log.Message(string.Format("[AndroidTiersContinuedPatch] Increased production speed int field {0} on {1} by 1.5x", fName, def.defName));
+                                                int iVal = (int)objVal;
+                                                originalProductionIntervals[comp][fieldInfo.Name] = (float)iVal;
                                             }
                                         }
                                     }
                                 }
                             }
+                        }
+                    }
+                }
+            }
+
+            // Apply mod settings on startup
+            ApplySettings();
+        }
+
+        public static void ApplySettings()
+        {
+            float prodMulti = 1.0f;
+            float batMulti = 1.0f;
+            if (AndroidTiersPatchMod.settings != null)
+            {
+                prodMulti = AndroidTiersPatchMod.settings.productionMultiplier;
+                batMulti = AndroidTiersPatchMod.settings.batteryConsumptionMultiplier;
+            }
+
+            foreach (var kvp in originalHungerRates)
+            {
+                // baseHungerRate determines how fast battery drains.
+                // Higher multiplier = more consumption. 
+                // By default vanilla is 1.0. User setting batMulti directly sets it.
+                kvp.Key.race.baseHungerRate = kvp.Value * batMulti;
+            }
+
+            foreach (var compKvp in originalProductionIntervals)
+            {
+                var comp = compKvp.Key;
+                var type = comp.GetType();
+                foreach (var fieldKvp in compKvp.Value)
+                {
+                    var fieldInfo = type.GetField(fieldKvp.Key, System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.FlattenHierarchy);
+                    if (fieldInfo != null)
+                    {
+                        // Higher production multiplier = lower interval (faster production)
+                        float originalValue = fieldKvp.Value;
+                        float newValue = originalValue / prodMulti;
+                        
+                        if (fieldInfo.FieldType == typeof(int))
+                        {
+                            fieldInfo.SetValue(comp, (int)newValue);
+                        }
+                        else if (fieldInfo.FieldType == typeof(float))
+                        {
+                            fieldInfo.SetValue(comp, newValue);
                         }
                     }
                 }
@@ -190,13 +244,7 @@ namespace AndroidTiersContinuedPatch
 
                     if (isAndroidAnimal)
                     {
-                        if (value < __instance.CurLevel)
-                        {
-                            float drop = __instance.CurLevel - value;
-                            // Reduce energy drain by 75% (battery lasts 4x longer)
-                            value = __instance.CurLevel - (drop * 0.25f);
-                        }
-                        else if (value > __instance.CurLevel)
+                        if (value > __instance.CurLevel)
                         {
                             float gain = value - __instance.CurLevel;
                             // Multiply energy gain so one meal effectively fully charges the battery

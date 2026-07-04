@@ -6,7 +6,7 @@ using RimWorld;
 
 namespace TheGarbageCollector
 {
-    public class Alert_GarbageCollector : FarUtils.Alert_ConditionalUtility
+    public class Alert_GarbageCollector : Alert_ConditionalUtility
     {
         public static bool pullFromStorage = false;
 
@@ -221,7 +221,7 @@ namespace TheGarbageCollector
         private static void AddCleanOption(DiaNode node, Map map, string label, GarbageFilterMode mode)
         {
             int cost = CalculateCost(map, mode, pullFromStorage);
-            int availableSilver = FarUtils.SilverHelper.GetTotalAvailableSilver(); // Allow paying from any layer
+            int availableSilver = SilverHelper.GetTotalAvailableSilver(); // Allow paying from any layer
 
             string optionText;
             if (mode == GarbageFilterMode.MechScrap)
@@ -297,7 +297,7 @@ namespace TheGarbageCollector
                 }
             }
 
-            int availableSilver = FarUtils.SilverHelper.GetTotalAvailableSilver();
+            int availableSilver = SilverHelper.GetTotalAvailableSilver();
             string optionText = string.Format("{0} (Cost: {1} silver for {2} layer(s))", label, totalCost, targetMaps.Count);
 
             DiaOption opt = new DiaOption(optionText);
@@ -316,7 +316,7 @@ namespace TheGarbageCollector
                 opt.resolveTree = true;
                 opt.action = delegate
                 {
-                    FarUtils.SilverHelper.DeductSilver(totalCost);
+                    SilverHelper.DeductSilver(totalCost);
                     IncidentDef incidentDef = DefDatabase<IncidentDef>.GetNamed("Incident_SummonGarbageCollector", false);
                     if (incidentDef != null)
                     {
@@ -558,12 +558,12 @@ namespace TheGarbageCollector
 
         public static int GetAvailableSilver(Map map)
         {
-            return FarUtils.SilverHelper.GetAvailableSilverOnMap(map);
+            return SilverHelper.GetAvailableSilverOnMap(map);
         }
 
         public static void DeductSilver(Map map, int amount)
         {
-            FarUtils.SilverHelper.DeductSilver(amount, map);
+            SilverHelper.DeductSilver(amount, map);
         }
     }
 

@@ -41,6 +41,35 @@ namespace AndroidTiersContinuedPatch
     }
 
     [HarmonyPatch]
+    public static class HideEnemySkyMindGizmosPatch
+    {
+        public static bool Prepare()
+        {
+            return AccessTools.TypeByName("MOARANDROIDS.CompSkyMind") != null;
+        }
+
+        public static System.Reflection.MethodBase TargetMethod()
+        {
+            return AccessTools.Method(AccessTools.TypeByName("MOARANDROIDS.CompSkyMind"), "CompGetGizmosExtra");
+        }
+
+        [HarmonyPostfix]
+        public static void Postfix(ThingComp __instance, ref IEnumerable<Gizmo> __result)
+        {
+            if (__instance == null) return;
+            Pawn pawn = __instance.parent as Pawn;
+            if (pawn != null)
+            {
+                // If the android is not ours, not our prisoner, and not our slave, hide the gizmos.
+                if (pawn.Faction != Faction.OfPlayer && !pawn.IsPrisonerOfColony && !pawn.IsSlaveOfColony)
+                {
+                    __result = Enumerable.Empty<Gizmo>();
+                }
+            }
+        }
+    }
+
+    [HarmonyPatch]
     public static class HackAnyEnemyAndroidPatch
     {
         public static bool Prepare()

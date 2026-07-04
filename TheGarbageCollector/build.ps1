@@ -44,17 +44,8 @@ if (-not (Test-Path $harmonyTarget)) {
 } else {
     Write-Host "Harmony DLL already present in Assemblies folder." -ForegroundColor Gray
 }
-# 3.5. Copy FarUtils DLL from FarUtils mod folder
-$farUtilsSource = "$modDir\..\FarUtils\1.6\Assemblies\FarUtils.dll"
-if (Test-Path $farUtilsSource) {
-    Copy-Item $farUtilsSource "$assembliesDir\FarUtils.dll" -Force
-    Write-Host "Copied FarUtils DLL from FarUtils framework mod." -ForegroundColor Green
-} else {
-    Write-Error "FarUtils.dll not found in FarUtils framework mod folder. Please compile FarUtils first."
-    return
-}
 
-# 4. Compile TheGarbageCollector.dll
+# 3. Compile TheGarbageCollector.dll
 Write-Host "Compiling TheGarbageCollector..." -ForegroundColor Green
 $cscPath = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
 if (-not (Test-Path $cscPath)) {
@@ -70,10 +61,10 @@ $refs = @(
     "$managedDir\Assembly-CSharp.dll",
     "$managedDir\UnityEngine.dll",
     "$managedDir\UnityEngine.CoreModule.dll",
+    "$managedDir\UnityEngine.IMGUIModule.dll",
     "$managedDir\netstandard.dll",
     "$managedDir\Unity.Mathematics.dll",
     "$assembliesDir\0Harmony.dll",
-    "$assembliesDir\FarUtils.dll",
     "System.dll",
     "System.Core.dll",
     "System.Xml.dll"
@@ -116,6 +107,5 @@ foreach ($dir in @("About", "Defs", "Patches", "Textures", "Languages")) {
 # Copy assemblies
 Copy-Item "$assembliesDir\TheGarbageCollector.dll" "$deployDir\1.6\Assemblies\" -Force
 Copy-Item "$assembliesDir\0Harmony.dll" "$deployDir\1.6\Assemblies\" -Force
-Copy-Item "$assembliesDir\FarUtils.dll" "$deployDir\1.6\Assemblies\" -Force
 
 Write-Host "The Garbage Collector mod deployed successfully! You can now enable it in RimWorld's mod menu." -ForegroundColor Green
