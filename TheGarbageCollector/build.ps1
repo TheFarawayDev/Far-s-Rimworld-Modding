@@ -62,6 +62,7 @@ $refs = @(
     "$managedDir\UnityEngine.dll",
     "$managedDir\UnityEngine.CoreModule.dll",
     "$managedDir\UnityEngine.IMGUIModule.dll",
+    "$managedDir\UnityEngine.TextRenderingModule.dll",
     "$managedDir\netstandard.dll",
     "$managedDir\Unity.Mathematics.dll",
     "$assembliesDir\0Harmony.dll",
