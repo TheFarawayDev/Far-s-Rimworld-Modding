@@ -30,6 +30,14 @@ $mods = @(
         Name         = "CE_Embrasures"
         NeedsHarmony = $false
         IsXmlOnly    = $true
+    },
+    @{
+        Name         = "InfiniteTurrets"
+        NeedsHarmony = $true
+    },
+    @{
+        Name         = "ModifiedWorkNeeded"
+        NeedsHarmony = $false
     }
 )
 

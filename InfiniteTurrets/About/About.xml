@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <name>Infinite Turrets</name>
+  <author>TheFarawayDev, idkman2021</author>
+  <packageId>thefarawaydev.infiniteturrets</packageId>
+  <supportedVersions>
+    <li>1.4</li>
+    <li>1.5</li>
+    <li>1.6</li>
+  </supportedVersions>
+  <description>Adds an option to either have infinite durability on turret barrels and all other barrels or choose to have the durability multiplied. Compatible with CE and other turret mods.</description>
+  <modDependencies>
+    <li>
+      <packageId>brrainz.harmony</packageId>
+      <displayName>Harmony</displayName>
+      <downloadUrl>https://github.com/pardeike/HarmonyRimWorld/releases/latest</downloadUrl>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/2009171731</steamWorkshopUrl>
+    </li>
+  </modDependencies>
+</ModMetaData>
