@@ -22,7 +22,7 @@ namespace WhyInfestations
         public static bool Prefix(ref bool __result)
         {
             __result = false;
-            return false; // Skips original method
+            return false;
         }
     }
 

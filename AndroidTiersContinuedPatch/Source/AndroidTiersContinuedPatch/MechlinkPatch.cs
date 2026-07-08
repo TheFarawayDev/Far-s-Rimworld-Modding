@@ -5,12 +5,14 @@ using Verse;
 
 namespace AndroidTiersContinuedPatch
 {
+    [HarmonyPatch(typeof(CompUseEffect_InstallImplant), "CanBeUsedBy")]
     [HarmonyPatch(typeof(CompUseEffect_InstallImplantMechlink), "CanBeUsedBy")]
-    public static class CompUseEffect_InstallImplantMechlink_CanBeUsedBy_Patch
+    public static class CompUseEffect_InstallImplant_CanBeUsedBy_Patch
     {
-        public static void Postfix(CompUseEffect_InstallImplantMechlink __instance, Pawn p, ref AcceptanceReport __result)
+        public static void Postfix(CompUseEffect_InstallImplant __instance, Pawn p, ref AcceptanceReport __result)
         {
-            if (__instance.Props.hediffDef != null && __instance.Props.hediffDef.defName == "MechlinkImplant")
+            if (__instance.Props.bodyPart != null && __instance.Props.bodyPart.defName == "Brain" || 
+               (__instance.Props.hediffDef != null && __instance.Props.hediffDef.defName == "MechlinkImplant"))
             {
                 bool isAndroid = p.def.defName.StartsWith("Android") || p.def.defName.StartsWith("Robotic") || p.def.defName.Contains("Droid");
                 if (isAndroid)
@@ -47,11 +49,13 @@ namespace AndroidTiersContinuedPatch
     }
 
     [HarmonyPatch(typeof(CompUseEffect_InstallImplant), "DoEffect")]
+    [HarmonyPatch(typeof(CompUseEffect_InstallImplantMechlink), "DoEffect")]
     public static class CompUseEffect_InstallImplant_DoEffect_Patch
     {
         public static bool Prefix(CompUseEffect_InstallImplant __instance, Pawn user)
         {
-            if (__instance is CompUseEffect_InstallImplantMechlink && __instance.Props.hediffDef != null && __instance.Props.hediffDef.defName == "MechlinkImplant")
+            if (__instance.Props.bodyPart != null && __instance.Props.bodyPart.defName == "Brain" || 
+               (__instance.Props.hediffDef != null && __instance.Props.hediffDef.defName == "MechlinkImplant"))
             {
                 bool isAndroid = user.def.defName.StartsWith("Android") || user.def.defName.StartsWith("Robotic") || user.def.defName.Contains("Droid");
                 if (isAndroid)

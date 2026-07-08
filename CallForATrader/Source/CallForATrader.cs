@@ -27,7 +27,20 @@ namespace CallForATrader
                     Zone zone = map.zoneManager.ZoneAt(cell);
                     bool inStockpile = zone != null && zone is Zone_Stockpile;
                     bool inShelf = cell.GetFirstBuilding(map) is Building_Storage;
-                    if (inStockpile || inShelf)
+                    bool inBeaconRange = false;
+                    foreach (Building b in map.listerBuildings.allBuildingsColonist)
+                    {
+                        Building_OrbitalTradeBeacon beacon = b as Building_OrbitalTradeBeacon;
+                        if (beacon != null && beacon.GetComp<CompPowerTrader>() != null && beacon.GetComp<CompPowerTrader>().PowerOn)
+                        {
+                            if (cell.InHorDistOf(beacon.Position, 7.9f))
+                            {
+                                inBeaconRange = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (inStockpile || inShelf || inBeaconRange)
                     {
                         count += thing.stackCount;
                     }
@@ -47,7 +60,20 @@ namespace CallForATrader
                     Zone zone = map.zoneManager.ZoneAt(cell);
                     bool inStockpile = zone != null && zone is Zone_Stockpile;
                     bool inShelf = cell.GetFirstBuilding(map) is Building_Storage;
-                    if (inStockpile || inShelf)
+                    bool inBeaconRange = false;
+                    foreach (Building b in map.listerBuildings.allBuildingsColonist)
+                    {
+                        Building_OrbitalTradeBeacon beacon = b as Building_OrbitalTradeBeacon;
+                        if (beacon != null && beacon.GetComp<CompPowerTrader>() != null && beacon.GetComp<CompPowerTrader>().PowerOn)
+                        {
+                            if (cell.InHorDistOf(beacon.Position, 7.9f))
+                            {
+                                inBeaconRange = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (inStockpile || inShelf || inBeaconRange)
                     {
                         silverThings.Add(thing);
                     }

@@ -54,7 +54,6 @@ namespace FasterEarlyGame
             if (req.Thing == null) return;
             Pawn pawn = req.Thing as Pawn;
             
-            // Only apply to colonists to avoid buffing enemies/NPCs unnecessarily
             if (pawn == null || !pawn.IsColonist) return; 
 
             if (___stat == StatDefOf.ResearchSpeed)

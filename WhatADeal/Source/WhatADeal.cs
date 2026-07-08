@@ -26,7 +26,6 @@ namespace WhatADeal
                         modifiedCount++;
                     }
                     
-                    // Make chunks very cheap
                     if (def.thingCategories != null)
                     {
                         foreach (var cat in def.thingCategories)
@@ -39,7 +38,6 @@ namespace WhatADeal
                         }
                     }
 
-                    // Dynamically assign trade tags so traders know to buy them
                     if (def.tradeTags == null)
                     {
                         def.tradeTags = new System.Collections.Generic.List<string>();
@@ -56,13 +54,12 @@ namespace WhatADeal
                     {
                         if (!def.tradeTags.Contains("Apparel"))
                             def.tradeTags.Add("Apparel");
-                        if (!def.tradeTags.Contains("Armor")) // Combat suppliers buy armor
+                        if (!def.tradeTags.Contains("Armor"))
                             def.tradeTags.Add("Armor");
                     }
                 }
             }
             
-            // Patch traders to buy un-tagged categories like chunks, unfinished, and corpses
             int tradersPatched = 0;
             ThingCategoryDef stoneChunks = DefDatabase<ThingCategoryDef>.GetNamedSilentFail("StoneChunks");
             ThingCategoryDef chunks = DefDatabase<ThingCategoryDef>.GetNamedSilentFail("Chunks");

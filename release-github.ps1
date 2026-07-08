@@ -36,6 +36,10 @@ $mods = @(
         NeedsHarmony = $true
     },
     @{
+        Name         = "GestaltEngineBandwidthFix"
+        NeedsHarmony = $true
+    },
+    @{
         Name         = "ModifiedWorkNeeded"
         NeedsHarmony = $false
     }
