@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
   <name>Modified Work Needed</name>
   <author>TheFarawayDev</author>
@@ -9,4 +9,5 @@
     <li>1.6</li>
   </supportedVersions>
   <description>Modifies work on all craftables (including androids, weapons, etc) based on a customizable multiplier.</description>
+  <modVersion>1.1.0</modVersion>
 </ModMetaData>

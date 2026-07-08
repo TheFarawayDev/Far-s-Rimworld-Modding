@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
   <name>Infinite Turrets</name>
   <author>TheFarawayDev, idkman2021</author>
@@ -17,4 +17,5 @@
       <steamWorkshopUrl>steam://url/CommunityFilePage/2009171731</steamWorkshopUrl>
     </li>
   </modDependencies>
+  <modVersion>1.1.0</modVersion>
 </ModMetaData>
