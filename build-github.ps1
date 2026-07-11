@@ -23,10 +23,6 @@ $mods = @(
         NeedsAndroidTiers = $true
     },
     @{
-        Name         = "QuarryCoRemake"
-        NeedsHarmony = $false
-    },
-    @{
         Name         = "CE_Embrasures"
         NeedsHarmony = $false
         IsXmlOnly    = $true
