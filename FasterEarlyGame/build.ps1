@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-$modName = "ModifiedWorkNeeded"
+$modName = "FasterEarlyGame"
 $csprojPath = Join-Path $PSScriptRoot "$modName.csproj"
 $GamePath = "C:\Program Files (x86)\Steam\steamapps\common\RimWorld"
 

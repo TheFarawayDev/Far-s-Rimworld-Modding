@@ -1,89 +1,57 @@
-# 1. Resolve game path
+$ErrorActionPreference = "Stop"
+
+$modName = "CallForATrader"
+$csprojPath = Join-Path $PSScriptRoot "$modName.csproj"
 $GamePath = "C:\Program Files (x86)\Steam\steamapps\common\RimWorld"
-if (-not (Test-Path "$GamePath\RimWorldWin64.exe")) {
-    Write-Error "RimWorld game directory not found at '$GamePath'."
-    return
-}
 
-# 2. Setup folders
-$modDir = "c:\Users\meast\Downloads\Development\GAMES\rimworldModding\CallForATrader"
-$assembliesDir = "$modDir\1.6\Assemblies"
-if (-not (Test-Path $assembliesDir)) {
-    New-Item -ItemType Directory -Path $assembliesDir -Force | Out-Null
-}
+Write-Host "Compiling $modName using latest C# version..." -ForegroundColor Cyan
 
-# 3. Locate Harmony DLL
-$harmonyTarget = "$assembliesDir\0Harmony.dll"
-if (-not (Test-Path $harmonyTarget)) {
-    $gcHarmony = "c:\Users\meast\Downloads\Development\GAMES\rimworldModding\TheGarbageCollector\1.6\Assemblies\0Harmony.dll"
-    if (Test-Path $gcHarmony) {
-        Copy-Item $gcHarmony $harmonyTarget -Force
-        Write-Host "Copied Harmony DLL." -ForegroundColor Green
-    }
-}
+dotnet build $csprojPath -c Release --no-incremental -p:LangVersion=preview
 
-# 4. Compile CallForATrader.dll
-Write-Host "Compiling CallForATrader..." -ForegroundColor Green
-$cscPath = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe"
-if (-not (Test-Path $cscPath)) {
-    Write-Error "C# compiler not found at '$cscPath'."
-    return
-}
-
-$outputDll = "$assembliesDir\CallForATrader.dll"
-$managedDir = "$GamePath\RimWorldWin64_Data\Managed"
-
-# Compiler references
-$refs = @(
-    "$managedDir\Assembly-CSharp.dll",
-    "$managedDir\UnityEngine.dll",
-    "$managedDir\UnityEngine.CoreModule.dll",
-    "$managedDir\UnityEngine.IMGUIModule.dll",
-    "$managedDir\UnityEngine.TextRenderingModule.dll",
-    "$managedDir\netstandard.dll",
-    "$managedDir\Unity.Mathematics.dll",
-    "$assembliesDir\0Harmony.dll",
-    "System.dll",
-    "System.Core.dll",
-    "System.Xml.dll"
-)
-
-$refArgs = $refs | ForEach-Object { "/r:`"$_`"" }
-
-# Get all C# files under Source directory
-$sources = Get-ChildItem -Path "$modDir\Source" -Filter "*.cs" | ForEach-Object { "`"$($_.FullName)`"" }
-
-$cmdArgs = @("/target:library", "/out:`"$outputDll`"", "/unsafe") + $refArgs + $sources
-
-& $cscPath $cmdArgs
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "Compilation failed." -ForegroundColor Red
-    return
+    Write-Error "Failed to compile mod: $modName"
+    exit 1
 }
-Write-Host "Successfully compiled CallForATrader.dll!" -ForegroundColor Green
 
-# 5. Deploy mod to RimWorld Mods folder
-$deployDir = "$GamePath\Mods\CallForATrader"
+Write-Host "Successfully compiled $modName!" -ForegroundColor Green
+
+if (-not (Test-Path "$GamePath\RimWorldWin64.exe")) {
+    Write-Warning "RimWorld game directory not found at '$GamePath'. Skipping deployment."
+    exit 0
+}
+
+$deployDir = "$GamePath\Mods\$modName"
 Write-Host "Deploying mod to: $deployDir" -ForegroundColor Green
 
-# Clean previous deployment
 if (Test-Path $deployDir) {
     Remove-Item $deployDir -Recurse -Force
 }
+New-Item -ItemType Directory -Path $deployDir -Force | Out-Null
 
-# Create deployment structure
-New-Item -ItemType Directory -Path "$deployDir\1.6\Assemblies" -Force | Out-Null
-
-# Copy asset folders recursively if they exist
-foreach ($dir in @("About", "Defs", "Patches", "Textures", "Languages")) {
-    if (Test-Path "$modDir\$dir") {
-        New-Item -ItemType Directory -Path "$deployDir\$dir" -Force | Out-Null
-        Copy-Item -Path "$modDir\$dir\*" -Destination "$deployDir\$dir" -Recurse -Force
+foreach ($dir in @("About", "Defs", "Patches", "Textures", "Languages", "Sounds", "LoadFolders.xml")) {
+    $sourcePath = Join-Path $PSScriptRoot $dir
+    if (Test-Path $sourcePath) {
+        Copy-Item -Path $sourcePath -Destination "$deployDir\" -Recurse -Force
     }
 }
 
-# Copy assemblies
-Copy-Item "$assembliesDir\CallForATrader.dll" "$deployDir\1.6\Assemblies\" -Force
-Copy-Item "$assembliesDir\0Harmony.dll" "$deployDir\1.6\Assemblies\" -Force
+# Copy assemblies based on supported versions in About.xml
+$aboutXmlPath = Join-Path $PSScriptRoot "About\About.xml"
+if (Test-Path $aboutXmlPath) {
+    $xml = New-Object System.Xml.XmlDocument
+    $xml.Load([System.IO.Path]::GetFullPath($aboutXmlPath))
+    if ($null -ne $xml.ModMetaData.supportedVersions) {
+        foreach ($ver in $xml.ModMetaData.supportedVersions.li) {
+            $deployVersionDir = "$deployDir\$ver\Assemblies"
+            if (-not (Test-Path $deployVersionDir)) {
+                New-Item -ItemType Directory -Path $deployVersionDir -Force | Out-Null
+            }
+            $sourceAssemblies = Join-Path $PSScriptRoot "1.6\Assemblies\*"
+            if (Test-Path (Join-Path $PSScriptRoot "1.6\Assemblies")) {
+                Copy-Item -Path $sourceAssemblies -Destination $deployVersionDir -Recurse -Force
+            }
+        }
+    }
+}
 
-Write-Host "Call for a Trader mod deployed successfully!" -ForegroundColor Green
+Write-Host "$modName deployed successfully!" -ForegroundColor Green

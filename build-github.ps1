@@ -38,6 +38,10 @@ $mods = @(
     @{
         Name         = "ModifiedWorkNeeded"
         NeedsHarmony = $false
+    },
+    @{
+        Name         = "DoMoreResearch"
+        NeedsHarmony = $true
     }
 )
 

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <name>Share Mod List</name>
+  <author>TheFarawayDev</author>
+  <packageId>TheFarawayDev.ShareModList</packageId>
+  <supportedVersions>
+    <li>1.6</li>
+  </supportedVersions>
+  <description>Adds a button to the mod options to quickly copy your active mod list to your clipboard for easy sharing.</description>
+</ModMetaData>

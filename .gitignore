@@ -26,3 +26,5 @@ Thumbs.db
 
 # Mod Folders to Ignore
 Android-Tiers-Core
+decompiled_matternetwork
+decompiled_multifloors
