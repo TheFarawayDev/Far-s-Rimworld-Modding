@@ -55,7 +55,7 @@ Write-Host "Starting RimWorld Mod Compilation..." -ForegroundColor Cyan
 foreach ($mod in $mods) {
     $modName = $mod.Name
     $modDir = Join-Path $rootPath $modName
-    $csprojPath = Join-Path $modDir "$modName.csproj"
+    $csprojPath = Join-Path $modDir "$modName-build.csproj"
     
     Write-Host "----------------------------------------" -ForegroundColor Gray
     Write-Host "Preparing build for mod: $modName" -ForegroundColor Yellow
@@ -69,6 +69,7 @@ foreach ($mod in $mods) {
     $csprojContent = @"
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <AssemblyName>$modName</AssemblyName>
     <TargetFramework>net48</TargetFramework>
     <OutputType>Library</OutputType>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
