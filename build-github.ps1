@@ -38,6 +38,11 @@ $mods = @(
     @{
         Name         = "DoMoreResearch"
         NeedsHarmony = $true
+    },
+    @{
+        Name              = "MatterAnywhere"
+        NeedsHarmony      = $true
+        NeedsMatterNetwork = $true
     }
 )
 
@@ -95,6 +100,18 @@ foreach ($mod in $mods) {
   <ItemGroup>
     <Reference Include="AndroidTiersContinued">
       <HintPath>lib/AndroidTiersContinued.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+"@
+    }
+
+    if ($mod.NeedsMatterNetwork) {
+        $csprojContent += @"
+
+  <ItemGroup>
+    <Reference Include="Matter Network">
+      <HintPath>lib/Matter Network.dll</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>

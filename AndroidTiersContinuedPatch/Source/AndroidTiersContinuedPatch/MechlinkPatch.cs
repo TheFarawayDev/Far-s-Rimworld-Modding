@@ -49,7 +49,6 @@ namespace AndroidTiersContinuedPatch
     }
 
     [HarmonyPatch(typeof(CompUseEffect_InstallImplant), "DoEffect")]
-    [HarmonyPatch(typeof(CompUseEffect_InstallImplantMechlink), "DoEffect")]
     public static class CompUseEffect_InstallImplant_DoEffect_Patch
     {
         public static bool Prefix(CompUseEffect_InstallImplant __instance, Pawn user)

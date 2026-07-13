@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+  <ThingDef ParentName="BuildingBase">
+    <defName>Building_QuantumNetworkRelay</defName>
+    <label>quantum network relay</label>
+    <description>A quantum-entangled communications relay that bridges the local Matter Network storage to a planetary ledger. Allows cross-map resource transfers, but dynamically scales power draw up to 5000W when actively routing resources.</description>
+    <thingClass>TheFarawayDev.MatterAnywhere.Building_QuantumNetworkRelay</thingClass>
+    <tickerType>Rare</tickerType>
+    <graphicData>
+      <texPath>MatterNetwork/Things/Building/Controller</texPath>
+      <graphicClass>Graphic_Single</graphicClass>
+      <drawSize>(1,1)</drawSize>
+      <shaderType>CutoutComplex</shaderType>
+      <shadowData>
+        <volume>(0.3, 0.3, 0.3)</volume>
+      </shadowData>
+    </graphicData>
+    <statBases>
+      <MaxHitPoints>250</MaxHitPoints>
+      <WorkToBuild>2000</WorkToBuild>
+      <Flammability>0.5</Flammability>
+      <Mass>25</Mass>
+    </statBases>
+    <size>(1,1)</size>
+    <costList>
+      <Steel>120</Steel>
+      <Plasteel>30</Plasteel>
+      <ComponentSpacer>3</ComponentSpacer>
+    </costList>
+    <comps>
+      <li Class="CompProperties_Power">
+        <compClass>CompPowerTrader</compClass>
+        <basePowerConsumption>500</basePowerConsumption>
+        <shortCircuitInRain>true</shortCircuitInRain>
+      </li>
+      <li Class="CompProperties_Flickable"/>
+      <li Class="TheFarawayDev.MatterAnywhere.CompProperties_NetworkRelay"/>
+    </comps>
+    <inspectorTabs>
+      <li>TheFarawayDev.MatterAnywhere.ITab_QuantumRelay</li>
+    </inspectorTabs>
+    <rotatable>false</rotatable>
+    <altitudeLayer>Building</altitudeLayer>
+    <minifiedDef>MinifiedThing</minifiedDef>
+    <thingCategories>
+      <li>BuildingsMisc</li>
+    </thingCategories>
+    <designationCategory>MN_MatterNetwork</designationCategory>
+    <researchPrerequisites>
+      <li>PlanetaryNetworking</li>
+    </researchPrerequisites>
+    <constructionSkillPrerequisite>10</constructionSkillPrerequisite>
+  </ThingDef>
+</Defs>

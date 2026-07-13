@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ModMetaData>
+  <name>Matter Anywhere</name>
+  <author>TheFarawayDev</author>
+  <packageId>thefarawaydev.matteranywhere</packageId>
+  <supportedVersions>
+    <li>1.4</li>
+    <li>1.5</li>
+    <li>1.6</li>
+  </supportedVersions>
+  <modDependencies>
+    <li>
+      <packageId>brrainz.harmony</packageId>
+      <displayName>Harmony</displayName>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/2009130273</steamWorkshopUrl>
+    </li>
+    <li>
+      <packageId>sk.matternetwork</packageId>
+      <displayName>Matter Network</displayName>
+    </li>
+  </modDependencies>
+  <description>Matter Anywhere is a cross-map network bridge addon for Matter Network. By building a Quantum Network Relay, you can sync your local digital storage reserves to a planetary ledger, making your digitized items accessible across different map instances.
+
+Dev Note: This mod is an addon and a tribute to SK's original fantastic work on Matter Network. All credit for the base digitization concept, textures, and mechanics goes to SK.</description>
+</ModMetaData>

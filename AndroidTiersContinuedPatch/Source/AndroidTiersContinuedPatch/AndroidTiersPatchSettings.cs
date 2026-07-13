@@ -8,12 +8,14 @@ namespace AndroidTiersContinuedPatch
     {
         public float productionMultiplier = 1.0f;
         public float batteryConsumptionMultiplier = 1.0f;
+        public bool autoEquipEnabled = false;
 
         public override void ExposeData()
         {
             base.ExposeData();
             Scribe_Values.Look(ref productionMultiplier, "productionMultiplier", 1.0f);
             Scribe_Values.Look(ref batteryConsumptionMultiplier, "batteryConsumptionMultiplier", 1.0f);
+            Scribe_Values.Look(ref autoEquipEnabled, "autoEquipEnabled", false);
         }
     }
 
@@ -30,6 +32,19 @@ namespace AndroidTiersContinuedPatch
         {
             Listing_Standard listingStandard = new Listing_Standard();
             listingStandard.Begin(inRect);
+
+            // Endless Growth Detection Label
+            if (ModsConfig.IsActive("Slime.EndlessGrowth"))
+            {
+                GUI.color = Color.green;
+                listingStandard.Label("Detected: Endless Growth");
+                GUI.color = Color.white;
+                listingStandard.Gap();
+            }
+
+            // Auto-Equip Toggle Checkbox
+            listingStandard.CheckboxLabeled("Enable Auto-Equip Weapons and Armor", ref settings.autoEquipEnabled, "Enables player-owned android colonists to automatically walk over and equip/wear the best weapons and apparel available on the map based on quality and damage/armor advantages.");
+            listingStandard.Gap();
 
             // Production Multiplier Slider
             listingStandard.Label(string.Format("Ani-Droid Production Multiplier: {0}x", settings.productionMultiplier.ToString("F2")));

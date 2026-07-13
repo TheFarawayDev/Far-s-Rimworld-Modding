@@ -115,19 +115,12 @@ namespace DoMoreResearch
             var currentProjField = AccessTools.Field(typeof(ResearchManager), "currentProj");
             var currentProj = currentProjField?.GetValue(Find.ResearchManager) as ResearchProjectDef;
 
-            if (currentProj == null && DoMoreResearchMod.Settings.enableAutoResearch)
+            if (currentProj == null && DoMoreResearchMod.Settings.enableAutoResearch && !IsQueueActive())
             {
                 var next = AutoResearcher.GetNextBestResearch();
                 if (next != null)
                 {
-                    if (currentProjField != null)
-                    {
-                        currentProjField.SetValue(Find.ResearchManager, next);
-                    }
-                    else
-                    {
-                        Log.Error("[Do More Research] Could not set current research project (currentProj field not found).");
-                    }
+                    Find.ResearchManager.SetCurrentProject(next);
                     
                     if (DoMoreResearchMod.Settings.smartNotifications)
                     {
@@ -140,6 +133,60 @@ namespace DoMoreResearch
                     }
                 }
             }
+        }
+
+        private static bool IsQueueActive()
+        {
+            // YART Support
+            try
+            {
+                var yartType = AccessTools.TypeByName("YART.Data.ResearchQueueManager");
+                if (yartType != null)
+                {
+                    var instanceProp = AccessTools.Property(yartType, "Instance");
+                    var instance = instanceProp?.GetValue(null);
+                    if (instance != null)
+                    {
+                        var queuesField = AccessTools.Field(yartType, "queues");
+                        var queuesDict = queuesField?.GetValue(instance) as System.Collections.IDictionary;
+                        if (queuesDict != null)
+                        {
+                            foreach (System.Collections.DictionaryEntry entry in queuesDict)
+                            {
+                                var list = entry.Value as System.Collections.IList;
+                                if (list != null && list.Count > 0)
+                                    return true;
+                            }
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Ignore exceptions for types that might not exist
+            }
+
+            // ResearchPal / ResearchPowl / ResearchTree (Fluffy) Support
+            foreach (var typeName in new[] { "ResearchPal.Queue", "ResearchTree.Queue", "ResearchPowl.Queue" })
+            {
+                try
+                {
+                    var type = AccessTools.TypeByName(typeName);
+                    if (type != null)
+                    {
+                        var listField = AccessTools.Field(type, "projects") ?? AccessTools.Field(type, "queue");
+                        var list = listField?.GetValue(null) as System.Collections.IList;
+                        if (list != null && list.Count > 0)
+                            return true;
+                    }
+                }
+                catch
+                {
+                    // Ignore exceptions for types that might not exist
+                }
+            }
+
+            return false;
         }
     }
 
