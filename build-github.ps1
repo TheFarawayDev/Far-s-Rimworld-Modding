@@ -77,6 +77,7 @@ foreach ($mod in $mods) {
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <Deterministic>true</Deterministic>
+    <DefaultItemExcludes>`$(DefaultItemExcludes);**/obj/**;**/bin/**</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>
